@@ -1,0 +1,78 @@
+<?php
+session_start();
+require_once __DIR__ . '/../config/config.php';
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    if ($email === '' || $password === '') {
+        $error = "Vui lòng nhập email và mật khẩu.";
+    } else {
+        $email_safe = mysqli_real_escape_string($conn, $email);
+        $pass_md5   = md5($password);
+        $sql = "SELECT user_id, full_name, email, role_id FROM users WHERE email = '{$email_safe}' AND password = '{$pass_md5}' LIMIT 1";
+        $result = mysqli_query($conn, $sql);
+        if ($result && mysqli_num_rows($result) === 1) {
+            $user = mysqli_fetch_assoc($result);
+            $_SESSION['user'] = ['user_id'=>(int)$user['user_id'], 'full_name'=>$user['full_name'], 'email'=>$user['email'], 'role_id'=>(int)$user['role_id']];
+            header('Location: index.php'); exit;
+        } else {
+            $error = "Email hoặc mật khẩu không đúng.";
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - FashionStore</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="auth-container">
+        <div id="successMessage" class="success-message"></div>
+        <?php if (!empty(
+            $error
+        )): ?>
+            <div class="error-message" style="margin:12px;padding:10px;border:1px solid #f00;border-radius:8px;background:#fff6f6;color:#900;">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
+        
+        <div class="auth-box">
+            <h1>Đăng Nhập</h1>
+            <form id="loginForm" action="login.php" method="POST">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" name="email" placeholder="Nhập tên đăng nhập" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="password-wrapper">
+                        <input type="password" name="password" id="password" placeholder="Nhập mật khẩu" required>
+                        
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-auth">Đăng Nhập</button>
+                
+                <div class="auth-links">
+                    <a href="#" onclick="forgotPassword()">Quên mật khẩu?</a>
+                </div>
+            </form>
+            
+            <div class="switch-form">
+                Chưa có tài khoản? <a href="register.php">Đăng ký ngay</a>
+            </div>
+        </div>
+    </div>
+
+   
+
+    <script src="js/app.js"></script>
+</body>
+</html>

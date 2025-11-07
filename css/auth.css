@@ -1,0 +1,99 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    font-family: Arial, sans-serif;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.auth-box {
+    width: 380px;
+    padding: 35px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.auth-box h1 {
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    margin-bottom: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+}
+.auth-box input:focus {
+    border-color: #007bff;
+}
+
+/* BUTTON XANH */
+.btn-auth {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #007bff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.btn-auth:hover {
+    background: #005ecb;
+}
+
+/* LINK */
+.auth-links,
+.switch-form {
+    text-align: center;
+    margin: 14px 0;
+}
+.auth-links a,
+.switch-form a {
+    color: #007bff;
+    font-size: 14px;
+    text-decoration: none;
+}
+.auth-links a:hover,
+.switch-form a:hover {
+    text-decoration: underline;
+}
+
+/* DIVIDER “HOẶC” */
+.divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 13px;
+    margin: 8px 0 2px;
+}
+.divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+    margin: 0 10px;
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+    .auth-box { width: 90%; padding: 28px; }
+    .auth-box h1 { font-size: 22px; }
+}

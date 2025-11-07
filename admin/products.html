@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Quản lý Sản phẩm - FashionStore Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="logosec">
+      <div class="logo">Vogue Lane Clothing</div>
+    </div>
+    <div class="searchbar">
+      <input type="text" placeholder="Tìm kiếm..."/>
+      <div class="searchbtn">
+      </div>
+    </div>
+    <div class="auth-links">
+      <a href="login.html"><i class="fa-solid fa-user"></i></a>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <div class="navcontainer" id="nav">
+      <nav class="nav">
+        <div class="nav-upper-options">
+          <div class="nav-option option1">
+            <h3><a href="dashboard.html">Dashboard</a></h3>
+          </div>
+          
+          <div class="nav-option">
+            <h3><a href="products.html">Sản phẩm</a></h3>
+          </div>
+          
+          <div class="nav-option">
+            <h3><a href="orders.html">Đơn hàng</a></h3>
+          </div>
+          
+          <div class="nav-option">
+            <h3><a href="users.html">Khách hàng</a></h3>
+          </div>
+          
+          <div class="nav-option logout">
+            <h3><a href="../index.html">Về trang chủ</a></h3>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <div class="main">
+      <h1 class="page-title">Quản lý Sản phẩm</h1>
+
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tên sản phẩm</th>
+              <th>Giá</th>
+              <th>Tồn kho</th>
+              <th>Size</th>
+              <th>Màu sắc</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Áo Thun Nam</td>
+              <td>250,000đ</td>
+              <td>50</td>
+              <td>M, L, XL</td>
+              <td>Trắng, Đen</td>
+              <td><span class="status-badge active">Còn hàng</span></td>
+              <td>
+                <button class="btn-edit" onclick="editProduct(1)">Sửa</button>
+                <button class="btn-delete" onclick="deleteProduct(1)">Xóa</button>
+              </td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Quần Jeans</td>
+              <td>400,000đ</td>
+              <td>30</td>
+              <td>29, 30, 31</td>
+              <td>Xanh đen</td>
+              <td><span class="status-badge active">Còn hàng</span></td>
+              <td>
+                <button class="btn-edit" onclick="editProduct(2)">Sửa</button>
+                <button class="btn-delete" onclick="deleteProduct(2)">Xóa</button>
+              </td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Áo Sơ Mi</td>
+              <td>350,000đ</td>
+              <td>5</td>
+              <td>M, L</td>
+              <td>Trắng, Xanh</td>
+              <td><span class="status-badge warning">Sắp hết</span></td>
+              <td>
+                <button class="btn-edit" onclick="editProduct(3)">Sửa</button>
+                <button class="btn-delete" onclick="deleteProduct(3)">Xóa</button>
+              </td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Quần Kaki</td>
+              <td>320,000đ</td>
+              <td>0</td>
+              <td>30, 31, 32</td>
+              <td>Be, Xám</td>
+              <td><span class="status-badge danger">Hết hàng</span></td>
+              <td>
+                <button class="btn-edit" onclick="editProduct(4)">Sửa</button>
+                <button class="btn-delete" onclick="deleteProduct(4)">Xóa</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-container">
+        <h2>Thêm Sản phẩm mới</h2>
+        <form id="productForm" onsubmit="addProduct(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tên sản phẩm</label>
+              <input type="text" id="productName" placeholder="Nhập tên sản phẩm" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Giá (VNĐ)</label>
+              <input type="number" id="productPrice" placeholder="Nhập giá" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tồn kho</label>
+              <input type="number" id="productStock" placeholder="Nhập số lượng" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Size</label>
+              <input type="text" id="productSize" placeholder="Ví dụ: S, M, L, XL">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Màu sắc</label>
+              <input type="text" id="productColor" placeholder="Ví dụ: Đen, Trắng, Xanh">
+            </div>
+            
+            <div class="form-group">
+              <label>Trạng thái</label>
+              <select id="productStatus">
+                <option value="active">Còn hàng</option>
+                <option value="warning">Sắp hết</option>
+                <option value="danger">Hết hàng</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit">Thêm sản phẩm</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/admin.js"></script>
+  <script>
+    function editProduct(id) {
+      alert('Chức năng sửa sản phẩm #' + id + ' đang được phát triển');
+    }
+
+    function deleteProduct(id) {
+      if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
+        alert('Đã xóa sản phẩm #' + id);
+      }
+    }
+
+    function addProduct(e) {
+      e.preventDefault();
+      alert('Đã thêm sản phẩm mới!');
+      document.getElementById('productForm').reset();
+    }
+  </script>
+</body>
+</html>

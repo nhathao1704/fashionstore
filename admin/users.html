@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Admin - Dashboard - FashionStore</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo">Vogue Lane Clothing</div>
+        </div>
+        <div class="searchbar">
+            <input type="text" placeholder="Tìm kiếm..." />
+            <div class="searchbtn">
+            </div>
+        </div>
+        <div class="auth-links">
+            <a href="login.html"><i class="fa-solid fa-user"></i></a>
+        </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="navcontainer" id="nav">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option option1">
+                        <h3><a href="dashboard.html">Dashboard</a></h3>
+                    </div>
+
+                    <div class="nav-option">
+                        <h3><a href="products.html">Sản phẩm</a></h3>
+                    </div>
+
+                    <div class="nav-option">
+                        <h3><a href="orders.html">Đơn hàng</a></h3>
+                    </div>
+
+                    <div class="nav-option">
+                        <h3><a href="users.html">Khách hàng</a></h3>
+                    </div>
+
+                    <div class="nav-option logout">
+                        <h3><a href="../index.html">Về trang chủ</a></h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <h1 class="page-title">Quản lý Khách hàng</h1>
+
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Họ và Tên</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Ngày đăng ký</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 20px;">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <h3>Tổng khách hàng</h3>
+                    <p class="stat-number" id="totalUsers">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Khách hàng mới (tháng này)</h3>
+                    <p class="stat-number" id="newUsers">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Khách hàng hoạt động</h3>
+                    <p class="stat-number" id="activeUsers">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/admin.js"></script>
+    <script>
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const tbody = document.getElementById('userTableBody');
+
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">Chưa có khách hàng nào</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map((user, index) => {
+                const date = new Date(user.createdAt || Date.now());
+                const formattedDate = date.toLocaleDateString('vi-VN');
+
+                return `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${user.fullname}</td>
+                <td>${user.email}</td>
+                <td>${user.username}</td>
+                <td>${formattedDate}</td>
+                <td><span class="status-badge active">Hoạt động</span></td>
+                <td>
+                  <button class="btn-view" onclick="viewUser(${user.id})">Chi tiết</button>
+                  <button class="btn-delete" onclick="deleteUser(${user.id})">Xóa</button>
+                </td>
+              </tr>
+            `;
+            }).join('');
+            document.getElementById('totalUsers').textContent = users.length;
+            const currentMonth = new Date().getMonth();
+            const newUsersCount = users.filter(u => {
+                const userDate = new Date(u.createdAt || Date.now());
+                return userDate.getMonth() === currentMonth;
+            }).length;
+            document.getElementById('newUsers').textContent = newUsersCount;
+            document.getElementById('activeUsers').textContent = users.length;
+        }
+
+        function viewUser(userId) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                alert(`Thông tin khách hàng:\n\nHọ tên: ${user.fullname}\nEmail: ${user.email}\nUsername: ${user.username}\nNgày đăng ký: ${new Date(user.createdAt).toLocaleDateString('vi-VN')}`);
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Bạn có chắc muốn xóa khách hàng này?')) {
+                let users = JSON.parse(localStorage.getItem('users') || '[]');
+                users = users.filter(u => u.id !== userId);
+                localStorage.setItem('users', JSON.stringify(users));
+                loadUsers();
+                alert('Đã xóa khách hàng!');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+</html>
