@@ -13,7 +13,7 @@ if ($product_id <= 0) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_to_cart') {
   if (empty($_SESSION['loggedin']) || empty($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php?return=' . urlencode("../function/product_detail.php?id={$product_id}"));
+    header('Location: /fashionstore/index.php?page=login&return=' . urlencode('/fashionstore/index.php?page=product_detail&id=' . $product_id));
     exit;
   }
 
@@ -111,10 +111,10 @@ if (empty($imgs)) {
 
 // Sửa đường dẫn ảnh cho đúng tuyệt đối
 foreach ($imgs as &$img) {
-    $path = $img['image_url'];
-    if (strpos($path, 'http') !== 0 && strpos($path, '/FashionStore3/') !== 0) {
-        $path = '/FashionStore3/' . ltrim($path, '/');
-    }
+  $path = $img['image_url'];
+  if (strpos($path, 'http') !== 0 && strpos($path, '/FashionStore3/') !== 0 && strpos($path, '/fashionstore/') !== 0) {
+    $path = '/fashionstore/' . ltrim($path, '/');
+  }
     $img['image_url'] = $path;
 }
 unset($img);
@@ -134,16 +134,16 @@ while ($row = mysqli_fetch_assoc($rsVarAll)) $variants[] = $row;
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($product['product_name']) ?> - Chi tiết</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="/FashionStore3/css/style.css">
+    <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
 
 <header>
-  <div class="logo"><a href="/FashionStore3/index.php" style="text-decoration:none;color:white;">Vogue Lane Clothing</a></div>
+  <div class="logo"><a href="/fashionstore/index.php" style="text-decoration:none;color:white;">Vogue Lane Clothing</a></div>
   <nav class="navbar">
     <ul>
-      <li><a href="/FashionStore3/index.php">Trang chủ</a></li>
-      <li><a href="/FashionStore3/index.php?page=product">Sản phẩm</a></li>
+  <li><a href="/fashionstore/index.php">Trang chủ</a></li>
+  <li><a href="/fashionstore/index.php?page=product">Sản phẩm</a></li>
       <li class="dropdown">
         <a href="#" class="toggle-btn">☰ Danh mục</a>
         <div class="mega-menu">
@@ -180,11 +180,11 @@ while ($row = mysqli_fetch_assoc($rsVarAll)) $variants[] = $row;
     <div class="auth-links">
       <?php if (!empty($_SESSION['user'])): ?>
         <span class="user-name">Xin chào, <?= htmlspecialchars($_SESSION['user']['full_name']); ?></span>
-        <a href="/FashionStore3/index.php?page=logout" class="logout-btn" style="color:#c33;text-decoration:none;">Đăng xuất</a>
+        <a href="/fashionstore/index.php?page=logout" class="logout-btn" style="color:#c33;text-decoration:none;">Đăng xuất</a>
       <?php else: ?>
-        <a href="/FashionStore3/index.php?page=login"><i class="fa-solid fa-user"></i></a>
+        <a href="/fashionstore/index.php?page=login"><i class="fa-solid fa-user"></i></a>
       <?php endif; ?>
-      <a href="/FashionStore3/index.php?page=cart" class="cart-icon">
+      <a href="/fashionstore/index.php?page=cart" class="cart-icon">
         <i class="fa-solid fa-cart-shopping"></i>
         <span class="cart-count">0</span>
       </a>
@@ -256,7 +256,7 @@ while ($row = mysqli_fetch_assoc($rsVarAll)) $variants[] = $row;
           <button type="submit" class="btn-primary" id="addToCartBtn" disabled>
             <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
           </button>
-          <a href="/FashionStore3/index.php?page=cart" class="btn-outline">Xem giỏ hàng</a>
+          <a href="/fashionstore/index.php?page=cart" class="btn-outline">Xem giỏ hàng</a>
         </div>
       </form>
 
@@ -298,7 +298,7 @@ while ($row = mysqli_fetch_assoc($rsVarAll)) $variants[] = $row;
   <p class="copyright">© <?= date('Y') ?> Vogue Lane Clothing - Bản quyền thuộc về chúng tôi</p>
 </footer>
 
-<script src="/FashionStore3/js/app.js"></script>
+  <script src="/fashionstore/js/app.js"></script>
 
 <script>
 document.querySelectorAll('.thumbs img').forEach(function(img){

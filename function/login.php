@@ -1,6 +1,12 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/config.php';
+
+// Thiết lập thông tin trang
+$layout = 'auth';
+$page_title = 'Đăng Nhập - FashionStore';
+$extra_css = ['css/auth.css'];
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
@@ -14,37 +20,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($result && mysqli_num_rows($result) === 1) {
             $user = mysqli_fetch_assoc($result);
             $_SESSION['user'] = ['user_id'=>(int)$user['user_id'], 'full_name'=>$user['full_name'], 'email'=>$user['email'], 'role_id'=>(int)$user['role_id']];
-            header('Location: index.php'); exit;
+             header('Location: /fashionstore/index.php'); exit;
         } else {
             $error = "Email hoặc mật khẩu không đúng.";
         }
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập - FashionStore</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/auth.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
-    <div class="auth-container">
-        <div id="successMessage" class="success-message"></div>
-        <?php if (!empty(
+<?php
+// Bắt đầu output buffering
+ob_start();
+?>
+
+<div class="auth-container">
+    <div id="successMessage" class="success-message"></div>
+    <?php if (!empty(
             $error
         )): ?>
             <div class="error-message" style="margin:12px;padding:10px;border:1px solid #f00;border-radius:8px;background:#fff6f6;color:#900;">
                 <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
-        
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký - FashionStore</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body>    
         <div class="auth-box">
             <h1>Đăng Nhập</h1>
-            <form id="loginForm" action="login.php" method="POST">
+              <form id="loginForm" action="/fashionstore/index.php?page=login" method="POST">
                 <div class="form-group">
                     <label for="username">Tên đăng nhập</label>
                     <input type="text" id="username" name="email" placeholder="Nhập tên đăng nhập" required>
@@ -70,9 +79,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
     </div>
-
-   
-
-    <script src="js/app.js"></script>
 </body>
 </html>
