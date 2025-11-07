@@ -1,5 +1,34 @@
 <?php
 $current_page = isset($_GET['page']) ? $_GET['page'] : '';
+
+// Current request path to use as return URL after login/logout
+$current_request = $_SERVER['REQUEST_URI'] ?? '/fashionstore/index.php';
+$login_href = '/fashionstore/index.php?page=login&return=' . urlencode($current_request);
+$logout_href = '/fashionstore/index.php?page=logout&return=' . urlencode($current_request);
+
+// Tính số lượng mục trong giỏ hàng để hiển thị ở header
+$cart_count = 0;
+// Lấy user id từ session (hỗ trợ cả hai kiểu lưu session)
+$user_id = 0;
+if (!empty($_SESSION['user']) && !empty($_SESSION['user']['user_id'])) {
+    $user_id = (int)$_SESSION['user']['user_id'];
+} elseif (!empty($_SESSION['user_id'])) {
+    $user_id = (int)$_SESSION['user_id'];
+}
+
+if ($user_id) {
+    // đảm bảo có kết nối $conn
+    if (!isset($conn)) {
+        @include_once __DIR__ . '/../../config/config.php';
+    }
+    if (isset($conn) && $conn) {
+        $cart = mysqli_fetch_assoc(mysqli_query($conn, "SELECT cart_id FROM Carts WHERE user_id = {$user_id} LIMIT 1"));
+        if ($cart) {
+            $tot = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COALESCE(SUM(quantity),0) AS total FROM CartItems WHERE cart_id = {$cart['cart_id']}"));
+            $cart_count = (int)($tot['total'] ?? 0);
+        }
+    }
+}
 ?>
 <header>
     <div class="logo">
@@ -8,7 +37,8 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : '';
     <nav class="navbar">
         <ul>
             <li><a href="/fashionstore/index.php" class="<?= ($current_page=='')?'active':'' ?>">Trang chủ</a></li>
-            <li><a href="/fashionstore/function/product.php" class="<?= ($current_page=='product')?'active':'' ?>">Sản phẩm</a></li>
+            <!-- Chuyển sang route qua index.php?page=product để giữ layout/chung CSS -->
+            <li><a href="/fashionstore/index.php?page=product" class="<?= ($current_page=='product')?'active':'' ?>">Sản phẩm</a></li>
             <li class="dropdown">
                 <a href="#" class="toggle-btn">☰ Danh mục</a>
                 <div class="mega-menu">
@@ -35,7 +65,7 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : '';
                     </div>
                 </div>
             </li>
-        </ul>
+        </ul>  
     </nav>
 
     <div class="header-right">
@@ -43,13 +73,13 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : '';
         <div class="auth-links">
             <?php if (!empty($_SESSION['user'])): ?>
                 <span class="user-name">Xin chào, <?= htmlspecialchars($_SESSION['user']['full_name']); ?></span>
-                <a href="/fashionstore/function/logout.php" class="logout-btn" style="color:#c33;text-decoration:none;">Đăng xuất</a>
+                <a href="<?= $logout_href ?>" class="logout-btn" style="color:#c33;text-decoration:none;">Đăng xuất</a>
                 <?php else: ?>
-                <a href="/fashionstore/function/login.php"><i class="fa-solid fa-user"></i></a>
+                <a href="<?= $login_href ?>"><i class="fa-solid fa-user"></i></a>
             <?php endif; ?>
             <a href="/fashionstore/index.php?page=cart" class="cart-icon">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span class="cart-count">0</span>
+                <span class="cart-count"><?= $cart_count ?></span>
             </a>
         </div>
     </div>

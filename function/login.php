@@ -1,11 +1,26 @@
 <?php
-session_start();
 require_once __DIR__ . '/../config/config.php';
 
 // Thiết lập thông tin trang
 $layout = 'auth';
 $page_title = 'Đăng Nhập - FashionStore';
 $extra_css = ['css/auth.css'];
+
+// Lấy return URL nếu có (GET/POST)
+$return_url = '';
+if (!empty($_REQUEST['return'])) {
+    $return_url = trim($_REQUEST['return']);
+}
+
+function is_safe_return($r) {
+    if (!$r) return false;
+    // Không cho phép chứa protocol/host để tránh open redirect
+    if (stripos($r, 'http://') !== false || stripos($r, 'https://') !== false) return false;
+    if (strpos($r, '//') !== false) return false;
+    // Cho phép đường dẫn nội bộ: bắt đầu bằng /fashionstore hoặc bắt đầu bằng index.php
+    if (strpos($r, '/fashionstore') === 0 || strpos($r, '/index.php') === 0 || strpos($r, 'index.php') === 0) return true;
+    return false;
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email'] ?? '');
@@ -19,8 +34,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $result = mysqli_query($conn, $sql);
         if ($result && mysqli_num_rows($result) === 1) {
             $user = mysqli_fetch_assoc($result);
+            // Lưu session theo dạng mảng (hiện tại code dùng) và đồng thời set các khóa phổ thông
             $_SESSION['user'] = ['user_id'=>(int)$user['user_id'], 'full_name'=>$user['full_name'], 'email'=>$user['email'], 'role_id'=>(int)$user['role_id']];
-             header('Location: /fashionstore/index.php'); exit;
+            // Thiết lập thêm để các đoạn mã khác (ví dụ auth/login.php) cũng nhận diện được
+            $_SESSION['user_id'] = (int)$user['user_id'];
+            $_SESSION['loggedin'] = true;
+            // Redirect về return_url nếu nó an toàn, ngược lại về trang chủ
+            if (!empty($return_url) && is_safe_return($return_url)) {
+                header('Location: ' . $return_url);
+            } else {
+                header('Location: /fashionstore/index.php');
+            }
+            exit;
         } else {
             $error = "Email hoặc mật khẩu không đúng.";
         }
@@ -53,7 +78,10 @@ ob_start();
 <body>    
         <div class="auth-box">
             <h1>Đăng Nhập</h1>
-              <form id="loginForm" action="/fashionstore/index.php?page=login" method="POST">
+                            <form id="loginForm" action="/fashionstore/index.php?page=login" method="POST">
+                                <?php if (!empty($return_url) && is_safe_return($return_url)): ?>
+                                        <input type="hidden" name="return" value="<?= htmlspecialchars($return_url) ?>">
+                                <?php endif; ?>
                 <div class="form-group">
                     <label for="username">Tên đăng nhập</label>
                     <input type="text" id="username" name="email" placeholder="Nhập tên đăng nhập" required>

@@ -9,7 +9,10 @@ $extra_js = ['js/cart.js'];
 
 // Kiểm tra đăng nhập
 if (empty($_SESSION['user']) && empty($_SESSION['user_id'])) {
-    header('Location: index.php?page=login&return=' . urlencode('index.php?page=cart'));
+    echo "<script>
+        alert('Bạn chưa đăng nhập!');
+        window.location.href = '/fashionstore/function/login.php?return=" . urlencode('/fashionstore/function/cart.php') . "';
+    </script>";
     exit;
 }
 
@@ -162,6 +165,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.final-total').textContent = 
             new Intl.NumberFormat('vi-VN').format(totalAmount) + 'đ';
         updateCartCount(totalItems);
+    }
+
+    // Cập nhật số lượng hiển thị ở header (giỏ hàng)
+    function updateCartCount(n) {
+        const el = document.querySelector('.cart-count');
+        if (!el) return;
+        el.textContent = n;
     }
 
     container.addEventListener('click', function(e) {

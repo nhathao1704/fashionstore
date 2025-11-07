@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once __DIR__ . '/../config/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -190,7 +189,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
     </div>
-    <script src="js/app.js"></script>
-    <script src="js/auth.js"></script>
 </body>
 </html>

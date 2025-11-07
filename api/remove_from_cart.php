@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 session_start();
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../config/config.php';
 
 function json_error($msg, $code = 400) {
     http_response_code($code);
