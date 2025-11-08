@@ -7,7 +7,12 @@ $page_title = $page_title ?? 'FashionStore - Vogue Lane Clothing';
 <title><?php echo $page_title; ?></title>
 
 <!-- CSS Cơ bản -->
-<link rel="stylesheet" href="/fashionstore/css/style.css">
+<?php
+    // Cache-bust style.css using file modification time so updates appear immediately in browser
+    $stylePath = __DIR__ . '/../../css/style.css';
+    $styleVersion = file_exists($stylePath) ? filemtime($stylePath) : time();
+?>
+<link rel="stylesheet" href="/fashionstore/css/style.css?v=<?php echo $styleVersion; ?>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    
 

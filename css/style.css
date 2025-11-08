@@ -476,7 +476,7 @@ footer {
 }
 
 .btn-pay {
-  background-color: #000;
+  background-color: #ff7a00;
   color: #fff;
   border: none;
   padding: 10px 25px;
@@ -486,10 +486,6 @@ footer {
   transition: 0.3s;
 }
 
-.btn-pay:hover {
-  background-color: #f39c12;
-  color: #fff;
-}
 
 /* RIGHT TABLE */
 .delivery-content-right {
@@ -521,6 +517,103 @@ footer {
 
 .delivery-content-right table p {
   margin: 0;
+}
+
+/* Order summary (pay.php) - thumbnails and compact layout */
+.order-summary {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 18px;
+}
+.order-summary h3 {
+  margin-bottom: 14px;
+  font-size: 18px;
+  color: #2c3e50;
+}
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fcfcfc;
+}
+.order-item .thumb {
+  flex: 0 0 auto;
+  width: 64px; /* desktop: 64px */
+  height: 64px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.order-item .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.order-item .meta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.order-item .meta .name {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.order-item .meta .variant,
+.order-item .meta .qty {
+  font-size: 13px;
+  color: #666;
+}
+.order-item .price {
+  flex: 0 0 90px;
+  text-align: right;
+}
+.order-item .price .unit {
+  color: #e74c3c;
+  font-weight: 600;
+}
+.order-item .price .sub {
+  color: #333;
+  font-size: 14px;
+}
+.order-totals { 
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+  margin-top: 10px;
+}
+.order-totals .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  color: #444;
+}
+.order-totals .row.total {
+  font-weight: 700;
+  font-size: 16px;
+}
+.pay-form { 
+  margin-top: 14px;
+}
+
+@media (max-width: 768px) {
+  .order-item { gap: 10px; }
+  .order-item .thumb { width: 48px; height: 48px; }
+  .order-item .price { flex-basis: 80px; }
 }
 
 /* RESPONSIVE */

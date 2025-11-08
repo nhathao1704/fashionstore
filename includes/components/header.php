@@ -73,7 +73,7 @@ if ($user_id) {
         <div class="auth-links">
             <?php if (!empty($_SESSION['user'])): ?>
                 <span class="user-name">Xin chào, <?= htmlspecialchars($_SESSION['user']['full_name']); ?></span>
-                <a href="<?= $logout_href ?>" class="logout-btn" style="color:#c33;text-decoration:none;">Đăng xuất</a>
+                <a href="<?= $logout_href ?>" class="logout-btn" style="color:#c33;text-decoration:none;"><i class="fas fa-sign-in-alt"></i></a>
                 <?php else: ?>
                 <a href="<?= $login_href ?>"><i class="fa-solid fa-user"></i></a>
             <?php endif; ?>

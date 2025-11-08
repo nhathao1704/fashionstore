@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Thiết lập thông tin trang
 $layout = 'auth';
@@ -34,6 +34,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $result = mysqli_query($conn, $sql);
         if ($result && mysqli_num_rows($result) === 1) {
             $user = mysqli_fetch_assoc($result);
+            // Regenerate session id to prevent session fixation
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
             // Lưu session theo dạng mảng (hiện tại code dùng) và đồng thời set các khóa phổ thông
             $_SESSION['user'] = ['user_id'=>(int)$user['user_id'], 'full_name'=>$user['full_name'], 'email'=>$user['email'], 'role_id'=>(int)$user['role_id']];
             // Thiết lập thêm để các đoạn mã khác (ví dụ auth/login.php) cũng nhận diện được
@@ -72,8 +76,8 @@ ob_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Ký - FashionStore</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/auth.css">
+    <link rel="stylesheet" href="/fashionstore/css/style.css">
+    <link rel="stylesheet" href="/fashionstore/css/auth.css">
 </head>
 <body>    
         <div class="auth-box">
@@ -102,8 +106,8 @@ ob_start();
                 </div>
             </form>
             
-            <div class="switch-form">
-                Chưa có tài khoản? <a href="register.php">Đăng ký ngay</a>
+                <div class="switch-form">
+                Chưa có tài khoản? <a href="/fashionstore/index.php?page=register">Đăng ký ngay</a>
             </div>
         </div>
     </div>

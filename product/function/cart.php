@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Thiết lập thông tin trang
 $layout = 'main';
@@ -11,7 +11,7 @@ $extra_js = ['js/cart.js'];
 if (empty($_SESSION['user']) && empty($_SESSION['user_id'])) {
     echo "<script>
         alert('Bạn chưa đăng nhập!');
-        window.location.href = '/fashionstore/function/login.php?return=" . urlencode('/fashionstore/function/cart.php') . "';
+        window.location.href = '/fashionstore/index.php?page=login&return=" . urlencode('/fashionstore/index.php?page=cart') . "';
     </script>";
     exit;
 }
@@ -52,6 +52,39 @@ if ($cart) {
         $total_items += $row['quantity'];
     }
 }
+
+// Xử lý khi người dùng nhấn Thanh toán: chuyển dữ liệu thanh toán sang pay.php qua session
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && $_POST['action'] === 'checkout') {
+    // Đảm bảo có giỏ hàng
+    $checkout_payload = [
+        'user_id' => $user_id,
+        'cart_id' => $cart['cart_id'] ?? null,
+        'items' => [],
+        'total_items' => $total_items,
+        'total_amount' => $total_amount,
+        'created_at' => date('Y-m-d H:i:s')
+    ];
+
+    foreach ($items as $it) {
+        $checkout_payload['items'][] = [
+            'product_id' => $it['product_id'],
+            'product_name' => $it['product_name'],
+            'variant' => $it['size'] ?? null,
+            'quantity' => (int)$it['quantity'],
+            'price' => (float)$it['price_at_added'],
+            'image' => $it['image_url'] ?? null
+        ];
+    }
+
+    // Lưu payload vào session để pay.php lấy
+    $_SESSION['checkout_order'] = $checkout_payload;
+
+    // Chuyển hướng sang trang thanh toán
+    header('Location: /fashionstore/index.php?page=pay');
+    exit;
+}
+
+
 
 ob_start();
 ?>
@@ -132,9 +165,12 @@ ob_start();
                     <a href="index.php?page=product" class="btn-outline">
                         <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
                     </a>
-                    <a href="index.php?page=checkout" class="btn-primary">
-                        Thanh toán <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <form method="post" style="display:inline;">
+                        <input type="hidden" name="action" value="checkout">
+                        <button type="submit" class="btn-primary">
+                            Thanh toán <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -205,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const itemId = item.dataset.id;
                 
         try {
-            const response = await fetch('api/remove_from_cart.php', {
+            const response = await fetch('/fashionstore/api/remove_from_cart.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -234,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const itemId = input.dataset.id;
                 
         try {
-            const response = await fetch('api/update_cart.php', {
+            const response = await fetch('/fashionstore/api/update_cart.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

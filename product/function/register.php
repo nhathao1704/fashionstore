@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $full_name = trim($_POST['full_name'] ?? '');
@@ -49,8 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Ký - FashionStore</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/auth.css">
+    <link rel="stylesheet" href="/fashionstore/css/style.css">
+    <link rel="stylesheet" href="/fashionstore/css/auth.css">
 </head>
 <body>
     <div class="auth-container">
@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <div class="auth-box">
             <h1>Đăng Ký</h1>
-            <form id="registerForm" action="register.php" method="POST">
+            <form id="registerForm" action="/fashionstore/index.php?page=register" method="POST">
                 <div class="form-group">
                     <label for="full_name">Họ và tên</label>
                     <input type="text" id="full_name" name="full_name" placeholder="Nhập họ và tên" required value="<?php echo isset($full_name) ? htmlspecialchars($full_name) : ''; ?>">
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button type="submit" class="btn-auth">Đăng Ký</button>
 
                 <div class="auth-links" style="margin-top:8px;">
-                    Đã có tài khoản? <a href="login.php">Đăng nhập</a>
+                    Đã có tài khoản? <a href="/fashionstore/index.php?page=login">Đăng nhập</a>
                 </div>
             </form>
         </div>
@@ -150,7 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         
         <div class="auth-box">
             <h1>Đăng Ký Tài Khoản</h1>
-            <form id="signupForm" action="register.php" method="POST">
+            <form id="signupForm" action="/fashionstore/index.php?page=register" method="POST">
                 <div class="form-group">
                     <label for="fullname">Họ và Tên</label>
                     <input type="text" id="fullname" placeholder="Nhập họ và tên" required name="full_name">
@@ -184,8 +184,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button type="submit" class="btn-auth">Đăng Ký</button>
             </form>
             
-            <div class="switch-form">
-                Đã có tài khoản? <a href="login.php">Đăng nhập ngay</a>
+                <div class="switch-form">
+                Đã có tài khoản? <a href="/fashionstore/index.php?page=login">Đăng nhập ngay</a>
             </div>
         </div>
     </div>

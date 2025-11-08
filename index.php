@@ -1,17 +1,17 @@
 <?php
-session_start();
-include_once "config/config.php";
+include_once "config/config.php"; // config will start session centrally
 
 $page = $_GET['page'] ?? '';
 
 $allowed_pages = [
-    'product' => 'function/product.php',
-    'product_detail' => 'function/product_detail.php',
-    'cart' => 'function/cart.php',
-    'login' => 'function/login.php',
-    'register' => 'function/register.php',
-    'pay' => 'function/pay.php',
-    'logout' => 'function/logout.php'
+    'product' => 'product/function/product.php',
+    'product_detail' => 'product/function/product_detail.php',
+    'cart' => 'product/function/cart.php',
+    'login' => 'product/function/login.php',
+    'register' => 'product/function/register.php',
+    'pay' => 'product/function/pay.php',
+    'logout' => 'product/function/logout.php',
+    'purchase_order' => 'product/function/purchase_order.php'
 ];
 
 $layout = 'main';
