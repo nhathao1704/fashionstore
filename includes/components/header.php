@@ -72,8 +72,14 @@ if ($user_id) {
         <input type="text" placeholder="Tìm kiếm..." />
         <div class="auth-links">
             <?php if (!empty($_SESSION['user'])): ?>
-                <span class="user-name">Xin chào, <?= htmlspecialchars($_SESSION['user']['full_name']); ?></span>
-                <a href="<?= $logout_href ?>" class="logout-btn" style="color:#c33;text-decoration:none;"><i class="fas fa-sign-in-alt"></i></a>
+                <div class="user-dropdown">
+                    <span class="user-name toggle-btn">Xin chào, <?= htmlspecialchars($_SESSION['user']['full_name']); ?></span>
+                    <div class="user-menu">
+                        <a href="/fashionstore/index.php?page=information">Thông tin cá nhân</a>
+                        <a href="/fashionstore/index.php?page=purchase_order">Đơn hàng của tôi</a>
+                        <a href="<?= $logout_href ?>" class="logout-btn" style="color:#c33;text-decoration:none;"><i class="fas fa-sign-in-alt"></i> Đăng xuất</a>
+                    </div>
+                </div>
                 <?php else: ?>
                 <a href="<?= $login_href ?>"><i class="fa-solid fa-user"></i></a>
             <?php endif; ?>

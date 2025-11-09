@@ -11,7 +11,8 @@ $allowed_pages = [
     'register' => 'product/function/register.php',
     'pay' => 'product/function/pay.php',
     'logout' => 'product/function/logout.php',
-    'purchase_order' => 'product/function/purchase_order.php'
+    'purchase_order' => 'product/function/purchase_order.php',
+    'information' => 'product/function/information.php',
 ];
 
 $layout = 'main';

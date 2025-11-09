@@ -87,14 +87,49 @@ header {
 
 }
 
-/* User name truncation and responsive behavior */
-.auth-links .user-name {
+/* User dropdown menu */
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.user-name {
+  cursor: pointer;
   display: inline-block;
   max-width: 220px; /* adjust as needed */
   vertical-align: middle;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.user-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  z-index: 1000;
+  padding: 10px 0;
+}
+
+.user-menu a {
+  display: block;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.user-menu a:hover {
+  background-color: #f8f8f8;
+}
+
+.user-dropdown:hover .user-menu {
+  display: block;
 }
 
 @media (max-width: 768px) {
@@ -1216,6 +1251,233 @@ footer {
             width: 80px;
             height: 80px;
         }
+}
+
+/* Order confirmation page styles */
+.po-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.po-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.status-icon {
+    font-size: 32px;
+    color: #27ae60;
+}
+
+.status-text h2 {
+    font-size: 24px;
+    color: #27ae60;
+    margin-bottom: 8px;
+}
+
+.status-text p {
+    color: #666;
+    margin: 0;
+}
+
+.po-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.po-card h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.po-card h3 i {
+    color: #666;
+}
+
+.info-content {
+    margin-left: 26px;
+}
+
+.info-content p {
+    margin: 8px 0;
+    color: #444;
+}
+
+.info-content .name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.info-content .phone {
+    color: #666;
+}
+
+.info-content .note {
+    font-size: 14px;
+    color: #666;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}
+
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.items-list .item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: #fcfcfc;
+    border-radius: 8px;
+    align-items: center;
+}
+
+.item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-details h4 {
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: #2c3e50;
+}
+
+.item-details .variant {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.item-details .quantity {
+    color: #666;
+    font-size: 14px;
+}
+
+.item-price {
+    font-weight: 600;
+    color: #e74c3c;
+    text-align: right;
+    flex-shrink: 0;
+    min-width: 100px;
+}
+
+.order-summary {
+    border-top: 1px solid #eee;
+    margin-top: 20px;
+    padding-top: 15px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    color: #666;
+}
+
+.summary-row.total {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 18px;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 2px solid #eee;
+}
+
+.po-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 30px;
+}
+
+.po-actions a {
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.po-actions .btn-outline {
+    border: 1px solid #2c3e50;
+    color: #2c3e50;
+}
+
+.po-actions .btn-primary {
+    background: #ff7a00;
+    color: #fff;
+    border: none;
+}
+
+.po-actions .btn-outline:hover {
+    background: #2c3e50;
+    color: #fff;
+}
+
+.po-actions .btn-primary:hover {
+    background: #e66d00;
+}
+
+@media (max-width: 768px) {
+    .po-container {
+        padding: 15px;
+    }
+    
+    .po-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .items-list .item {
+        flex-wrap: wrap;
+    }
+    
+    .item-price {
+        width: 100%;
+        text-align: left;
+        margin-top: 10px;
+    }
+    
+    .po-actions {
+        flex-direction: column;
+    }
+    
+    .po-actions a {
+        width: 100%;
+        text-align: center;
+    }
 }
 
 
