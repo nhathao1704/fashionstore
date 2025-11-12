@@ -1,0 +1,4 @@
+- [ ] Modify purchase_order.php to insert into 'orders' table instead of 'PurchaseOrders' and remove JSON file saving
+- [ ] Update GET query in purchase_order.php to fetch from 'orders' table
+- [ ] Adjust display in GET to match 'orders' table fields (no items display since not in DB)
+- [ ] Test the changes
