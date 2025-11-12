@@ -126,6 +126,7 @@ header {
 
 .user-menu a:hover {
   background-color: #f8f8f8;
+  color: #f39c12;
 }
 
 .user-dropdown:hover .user-menu {
@@ -136,9 +137,10 @@ header {
   /* On smaller screens hide the user name to save space */
   .auth-links .user-name { display: none; }
 }
-
-.auth-links a {
+.cart-icon{
   color:var(--color-bg);
+}
+.auth-links a {
   text-decoration: none;
   font-weight: 600;
   font-size: 18px;
@@ -1478,6 +1480,203 @@ footer {
         width: 100%;
         text-align: center;
     }
+/* information.php */
+}
+.info-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+.info-container h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #2c3e50;
+}
 
+.info-form .form-group {
+  margin-bottom: 20px;
+}
+
+.info-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.info-form input,
+.info-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.info-form textarea {
+  resize: vertical;
+}
+
+.info-form .readonly {
+  padding: 10px;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin: 0;
+  color: #666;
+}
+
+.btn-primary1 {
+  background: #ff7a00;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  width: 100%;
+}
+
+.btn-primary1:hover {
+  background: #e66d00;
+}
+
+/* orders.php */
+    .orders-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .orders-container h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+
+    .no-orders {
+      text-align: center;
+      padding: 50px 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .no-orders p {
+      margin-bottom: 20px;
+      color: #666;
+    }
+
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .order-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #eee;
+    }
+
+    .order-info h3 {
+      margin: 0 0 5px 0;
+      color: #2c3e50;
+    }
+
+    .order-info p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .order-status .status {
+      background: #27ae60;
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .order-items {
+      padding: 20px;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+    }
+
+    .order-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .item-details h4 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+      color: #2c3e50;
+    }
+
+    .item-details p {
+      margin: 2px 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .item-price {
+      margin-left: auto;
+      font-weight: 600;
+      color: #e74c3c;
+      display: flex;
+      flex-direction: column;
+      gap:10px;
+    }
+    .item-price .sub{
+      color: #333;
+      font-size: 14px;
+    }
+    .order-total {
+      padding: 20px;
+      background: #f8f8f8;
+      text-align: right;
+      border-top: 1px solid #eee;
+    }
+
+    .btn-primary {
+      background: #ff7a00;
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      display: inline-block;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: #e66d00;
+    }

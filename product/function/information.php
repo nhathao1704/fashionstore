@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../config/config.php';
 $layout = 'main';
 $page_title = 'Thông tin cá nhân - FashionStore';
 
-// Check if user is logged in
+// kiem tra dang nhap
 if (empty($_SESSION['user'])) {
     header('Location: /fashionstore/index.php?page=login');
     exit;
@@ -19,7 +19,7 @@ if (!$user_id) {
     exit;
 }
 
-// Fetch user information from database
+// truy van thong tin nguoi dung
 $user_info = null;
 if ($conn) {
     $stmt = mysqli_prepare($conn, "SELECT * FROM Users WHERE user_id = ?");
@@ -40,22 +40,27 @@ $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name = trim($_POST['full_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
+    $phone_number = trim($_POST['phone_number'] ?? '');
     $address = trim($_POST['address'] ?? '');
+    $city = trim($_POST['city'] ?? '');
+    $district = trim($_POST['district'] ?? '');
+
 
     if (empty($full_name) || empty($email)) {
         $message = '<div class="message error">Họ tên và email là bắt buộc.</div>';
     } else {
         // Update user information
-        $stmt = mysqli_prepare($conn, "UPDATE Users SET full_name = ?, email = ?, phone = ?, address = ? WHERE user_id = ?");
-        mysqli_stmt_bind_param($stmt, "ssssi", $full_name, $email, $phone, $address, $user_id);
+        $stmt = mysqli_prepare($conn, "UPDATE users SET full_name = ?, email = ?, phone_number = ?, district = ?, city = ?, address = ? WHERE user_id = ?");
+        mysqli_stmt_bind_param($stmt, "ssssssi", $full_name, $email, $phone_number, $district, $city, $address, $user_id);
         if (mysqli_stmt_execute($stmt)) {
             $message = '<div class="message">Cập nhật thông tin thành công!</div>';
             // Update session
             $_SESSION['user']['full_name'] = $full_name;
             $_SESSION['user']['email'] = $email;
-            $_SESSION['user']['phone'] = $phone;
+            $_SESSION['user']['phone'] = $phone_number;
             $_SESSION['user']['address'] = $address;
+            $_SESSION['user']['city'] = $city;
+            $_SESSION['user']['district'] = $district;
             $user_info = array_merge($user_info, $_SESSION['user']);
         } else {
             $message = '<div class="message error">Có lỗi xảy ra khi cập nhật thông tin.</div>';
@@ -85,89 +90,28 @@ ob_start();
 
       <div class="form-group">
         <label for="phone">Số điện thoại:</label>
-        <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($user_info['phone'] ?? '') ?>">
+        <input type="tel" id="phone_number" name="phone_number" value="<?= htmlspecialchars($user_info['phone_number'] ?? '') ?>">
       </div>
-
       <div class="form-group">
-        <label for="address">Địa chỉ:</label>
-        <textarea id="address" name="address" rows="3"><?= htmlspecialchars($user_info['address'] ?? '') ?></textarea>
+          <label for="city">Tỉnh/Thành phố:</label>
+          <input id="city" name="city" value="<?= htmlspecialchars($user_info['city'] ?? '') ?>">
       </div>
-
       <div class="form-group">
-        <label>Ngày tạo tài khoản:</label>
-        <p class="readonly"><?= htmlspecialchars($user_info['created_at'] ?? '') ?></p>
+          <label for="district">Quận/Huyện:</label>
+          <input id="district" name="district" value="<?= htmlspecialchars($user_info['district'] ?? '') ?>">
+      </div>
+      <div class="form-group">
+          <label for="address">Địa chỉ:</label>
+          <input id="address" name="address" value="<?= htmlspecialchars($user_info['address'] ?? '') ?>">
       </div>
 
-      <button type="submit" class="btn-primary">Cập nhật thông tin</button>
+
+      <button type="submit" class="btn-primary1">Cập nhật thông tin</button>
     </form>
   </div>
 </main>
 
-<style>
-.info-container {
-  max-width: 600px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
 
-.info-container h1 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #2c3e50;
-}
-
-.info-form .form-group {
-  margin-bottom: 20px;
-}
-
-.info-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 600;
-  color: #333;
-}
-
-.info-form input,
-.info-form textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.info-form textarea {
-  resize: vertical;
-}
-
-.info-form .readonly {
-  padding: 10px;
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  margin: 0;
-  color: #666;
-}
-
-.btn-primary {
-  background: #ff7a00;
-  color: #fff;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  width: 100%;
-}
-
-.btn-primary:hover {
-  background: #e66d00;
-}
-</style>
 <?php
 $content = ob_get_clean();
 require __DIR__ . '/../../includes/layouts/' . $layout . '.php';

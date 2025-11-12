@@ -6,6 +6,23 @@ $layout = 'main';
 $page_title = 'Thanh toán - FashionStore';
 // Lấy dữ liệu thanh toán được chuyển từ `cart.php` (qua session)
 $checkout = $_SESSION['checkout_order'] ?? null;
+// Nếu chưa đăng nhập → quay về trang login
+if (empty($_SESSION['user'])) {
+    header('Location: /fashionstore/index.php?page=login&return=' . urlencode('/fashionstore/index.php?page=pay'));
+    exit;
+}
+
+// Nếu đã đăng nhập, lấy thông tin người dùng
+
+$user_info = null;
+$user_id = $_SESSION['user']['user_id'];
+
+$stmt = mysqli_prepare($conn, "SELECT full_name, phone_number,district, city, address FROM users WHERE user_id = ?");
+mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$user_info = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
 
 ob_start();
 ?>
@@ -14,58 +31,50 @@ ob_start();
     <div class="container">
       <div class="delivery-content">
           <div class="delivery-content-left">
-          <p>Vui lòng chọn địa chỉ giao hàng</p>
+           <form method="post" action="/fashionstore/index.php?page=purchase_order" class="pay-form">
+            <p>Vui lòng chọn địa chỉ giao hàng</p>
 
-          <div class="delivery-content-left-dangnhap row">
-            <i class="fas fa-sign-in-alt"></i>
-            <p>Đăng nhập (Nếu bạn đã có tài khoản )</p>
+            <div class="delivery-content-left-input-top">
+              <div class="delivery-content-left-input-top-item">
+                <label>Họ tên <span style="color:red;">*</span></label>
+                <input type="text" name="full_name" required 
+                       value="<?= htmlspecialchars($user_info['full_name'] ?? '') ?>">
+              </div>
+
+              <div class="delivery-content-left-input-top-item">
+                <label>Điện thoại <span style="color:red;">*</span></label>
+                <input type="text" name="phone" required 
+                       value="<?= htmlspecialchars($user_info['phone_number'] ?? '') ?>">
+              </div>
+
+              <div class="delivery-content-left-input-top-item">
+                <label>Tỉnh/Thành phố <span style="color:red;">*</span></label>
+                <input type="text" name="city" required 
+                       value="<?= htmlspecialchars($user_info['city'] ?? '') ?>">
+              </div>
+
+              <div class="delivery-content-left-input-top-item">
+                <label>Quận/Huyện <span style="color:red;">*</span></label>
+                <input type="text" name="district" required 
+                       value="<?= htmlspecialchars($user_info['district'] ?? '') ?>">
+              </div>
+            </div>
+
+            <div class="delivery-content-left-input-bottom">
+              <label>Địa chỉ <span style="color:red;">*</span></label>
+              <input type="text" name="address" required 
+                     value="<?= htmlspecialchars($user_info['address'] ?? '') ?>">
+            </div>
+            <div class="delivery-content-left-button">
+              <a href="index.php?page=cart" class="back-link"><span>&#171;</span> Quay lại giỏ hàng</a>
+              <?php // include a hidden checkout token if available to help recover order ?>
+              <?php if (!empty($_SESSION['checkout_token'])): ?>
+                <input type="hidden" name="checkout_token" value="<?= htmlspecialchars($_SESSION['checkout_token']) ?>">
+              <?php endif; ?>
+              <button type="submit" class="btn-pay">THANH TOÁN VÀ GIAO HÀNG</button>
+            </div>
           </div>
 
-          <form method="post" action="index.php?page=purchase_order">
-            <div class="delivery-content-left-khachle row">
-              <input checked name="customer_type" value="guest" type="radio">
-              <p><span style="font-weight:bold;">Khách lẻ</span> (Nếu bạn không muốn lưu lại thông tin)</p>
-            </div>
-
-            <div class="delivery-content-left-dangky row">
-              <input name="customer_type" value="register" type="radio">
-              <p><span style="font-weight:bold;">Đăng ký</span> (Tạo tài khoản với thông tin bên dưới)</p>
-            </div>
-
-          <div class="delivery-content-left-input-top">
-            <div class="delivery-content-left-input-top-item">
-              <label>Họ tên <span style="color:red;">*</span></label>
-              <input name="full_name" type="text" placeholder="Nhập họ và tên" required>
-            </div>
-            <div class="delivery-content-left-input-top-item">
-              <label>Điện thoại <span style="color:red;">*</span></label>
-              <input name="phone" type="text" placeholder="Số điện thoại" required>
-            </div>
-            <div class="delivery-content-left-input-top-item">
-              <label>Tỉnh/Thành phố <span style="color:red;">*</span></label>
-              <input name="city" type="text" placeholder="Ví dụ: Hà Nội" required>
-            </div>
-            <div class="delivery-content-left-input-top-item">
-              <label>Quận/Huyện <span style="color:red;">*</span></label>
-              <input name="district" type="text" placeholder="Ví dụ: Ba Đình" required>
-            </div>
-          </div>
-
-          <div class="delivery-content-left-input-bottom">
-            <label>Địa chỉ <span style="color:red;">*</span></label>
-            <input name="address" type="text" placeholder="Số nhà, tên đường..." required>
-          </div>
-
-          <div class="delivery-content-left-button">
-            <a href="index.php?page=cart" class="back-link"><span>&#171;</span> Quay lại giỏ hàng</a>
-            <?php // include a hidden checkout token if available to help recover order ?>
-            <?php if (!empty($_SESSION['checkout_token'])): ?>
-              <input type="hidden" name="checkout_token" value="<?= htmlspecialchars($_SESSION['checkout_token']) ?>">
-            <?php endif; ?>
-            <button type="submit" class="btn-pay">THANH TOÁN VÀ GIAO HÀNG</button>
-          </div>
-          </form>
-        </div>
 
         <div class="delivery-content-right">
           <div class="order-summary">

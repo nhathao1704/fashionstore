@@ -1,10 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
 
-// Simple purchase order handler: accepts POST from pay.php
-// Saves customer information under data/information/<order_id>.json
-// Saves full order under data/purchase_orders/<order_id>.json
-
 $layout = 'main';
 $page_title = 'Xác nhận đơn hàng - FashionStore';
 
@@ -26,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Fetch user orders from database
     $orders = [];
     if ($conn) {
-        $stmt = mysqli_prepare($conn, "SELECT * FROM PurchaseOrders WHERE user_id = ? ORDER BY created_at DESC");
+       $stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC");
         mysqli_stmt_bind_param($stmt, "i", $user_id);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
@@ -55,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 <div class="order-header">
                   <div class="order-info">
                     <h3>Mã đơn: <?= htmlspecialchars($order['order_id']) ?></h3>
-                    <p>Ngày đặt: <?= htmlspecialchars(date('d/m/Y H:i', strtotime($order['created_at']))) ?></p>
+                    <p>Ngày đặt: <?= htmlspecialchars(date('d/m/Y H:i', strtotime($order['order_date']))) ?></p>
                   </div>
                   <div class="order-status">
                     <span class="status">Đã đặt hàng</span>
@@ -78,7 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         <?php endif; ?>
                       </div>
                       <div class="item-price">
-                        <?= number_format($item['price'] * $item['quantity'], 0, ',', '.') ?>đ
+                        <div class="sub"><?= number_format($item['price'], 0, ',', '.') ?>đ</div>
+                        <div class="total"><?= number_format($item['price'] * $item['quantity'], 0, ',', '.') ?>đ</div>
                       </div>
                     </div>
                   <?php
@@ -97,135 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
       </div>
     </main>
 
-    <style>
-    .orders-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .orders-container h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #2c3e50;
-    }
-
-    .no-orders {
-      text-align: center;
-      padding: 50px 20px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .no-orders p {
-      margin-bottom: 20px;
-      color: #666;
-    }
-
-    .orders-list {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .order-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      background: #f8f8f8;
-      border-bottom: 1px solid #eee;
-    }
-
-    .order-info h3 {
-      margin: 0 0 5px 0;
-      color: #2c3e50;
-    }
-
-    .order-info p {
-      margin: 0;
-      color: #666;
-      font-size: 14px;
-    }
-
-    .order-status .status {
-      background: #27ae60;
-      color: #fff;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .order-items {
-      padding: 20px;
-    }
-
-    .order-item {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 15px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .order-item:last-child {
-      border-bottom: none;
-    }
-
-    .order-item img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
-
-    .item-details h4 {
-      margin: 0 0 5px 0;
-      font-size: 16px;
-      color: #2c3e50;
-    }
-
-    .item-details p {
-      margin: 2px 0;
-      color: #666;
-      font-size: 14px;
-    }
-
-    .item-price {
-      margin-left: auto;
-      font-weight: 600;
-      color: #e74c3c;
-    }
-
-    .order-total {
-      padding: 20px;
-      background: #f8f8f8;
-      text-align: right;
-      border-top: 1px solid #eee;
-    }
-
-    .btn-primary {
-      background: #ff7a00;
-      color: #fff;
-      text-decoration: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      display: inline-block;
-      font-weight: 600;
-    }
-
-    .btn-primary:hover {
-      background: #e66d00;
-    }
-    </style>
     <?php
     $content = ob_get_clean();
     require __DIR__ . '/../../includes/layouts/' . $layout . '.php';
@@ -272,50 +140,29 @@ if (empty($checkout) || empty($checkout['items'])) {
     exit;
 }
 
-// Ensure data directories exist
-$infoDir = __DIR__ . '/../../data/information';
-$orderDir = __DIR__ . '/../../data/purchase_orders';
-if (!is_dir($infoDir)) @mkdir($infoDir, 0777, true);
-if (!is_dir($orderDir)) @mkdir($orderDir, 0777, true);
+$orderId = 'ORD' . strtoupper(uniqid());
+$shipping_address = $data['address'] . ', ' . $data['district'] . ', ' . $data['city'];
+$items_json = json_encode($checkout['items'], JSON_UNESCAPED_UNICODE);
 
-// Create an order id and save both info and order
-$orderId = 'PO' . strtoupper(uniqid());
+$stmt = mysqli_prepare($conn, "
+    INSERT INTO orders (order_id, user_id, status_id, order_date, total_amount, shipping_address, items)
+    VALUES (?, ?, 1, NOW(), ?, ?, ?)
+");
 
-$infoFile = $infoDir . '/' . $orderId . '.json';
-$orderFile = $orderDir . '/' . $orderId . '.json';
+mysqli_stmt_bind_param(
+    $stmt,
+    "sidss", // ✅ chỉ còn 5 ký tự
+    $orderId,
+    $checkout['user_id'],
+    $checkout['total_amount'],
+    $shipping_address,
+    $items_json
+);
 
-$infoPayload = [
-    'order_id' => $orderId,
-    'customer' => $data,
-    'created_at' => $data['created_at']
-];
-file_put_contents($infoFile, json_encode($infoPayload, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+mysqli_stmt_execute($stmt);
+mysqli_stmt_close($stmt);
 
-$orderPayload = [
-    'order_id' => $orderId,
-    'user_id' => $checkout['user_id'] ?? null,
-    'cart_id' => $checkout['cart_id'] ?? null,
-    'items' => $checkout['items'],
-    'total_items' => $checkout['total_items'] ?? 0,
-    'total_amount' => $checkout['total_amount'] ?? 0,
-    'customer' => $data,
-    'created_at' => date('Y-m-d H:i:s')
-];
 
-// Insert into database
-if ($conn) {
-    $stmt = mysqli_prepare($conn, "INSERT INTO PurchaseOrders (order_id, user_id, items, total_amount, created_at) VALUES (?, ?, ?, ?, ?)");
-    $items_json = json_encode($orderPayload['items']);
-    mysqli_stmt_bind_param($stmt, "sisds", $orderId, $orderPayload['user_id'], $items_json, $orderPayload['total_amount'], $orderPayload['created_at']);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-}
-
-file_put_contents($orderFile, json_encode($orderPayload, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-
-// Optionally: clear session checkout and optionally clear cart in DB (not doing DB deletes automatically)
-unset($_SESSION['checkout_order']);
-unset($_SESSION['checkout_token']);
 
 // Render a Shopee-like order confirmation
 ob_start();
@@ -356,7 +203,7 @@ ob_start();
     <div class="po-card order-items">
       <h3><i class="fas fa-shopping-bag"></i> Sản phẩm đã đặt</h3>
       <div class="items-list">
-        <?php foreach ($orderPayload['items'] as $item): ?>
+        <?php foreach ($checkout['items'] as $item): ?>
         <div class="item">
           <div class="item-image">
             <img src="<?= htmlspecialchars($item['image'] ?? '/fashionstore/uploads/no-image.jpg') ?>" alt="">
@@ -378,7 +225,7 @@ ob_start();
       <div class="order-summary">
         <div class="summary-row">
           <span>Tổng tiền hàng</span>
-          <span><?= number_format($orderPayload['total_amount'], 0, ',', '.') ?>đ</span>
+           <span><?= number_format($checkout['total_amount'], 0, ',', '.') ?>đ</span>
         </div>
         <div class="summary-row">
           <span>Phí vận chuyển</span>
@@ -386,14 +233,13 @@ ob_start();
         </div>
         <div class="summary-row total">
           <span>Tổng thanh toán</span>
-          <span><?= number_format($orderPayload['total_amount'], 0, ',', '.') ?>đ</span>
-        </div>
+          <span><?= number_format($checkout['total_amount'], 0, ',', '.') ?>đ</span>
       </div>
     </div>
 
     <!-- Actions -->
     <div class="po-actions">
-      <a href="index.php?page=orders" class="btn-outline">Xem đơn hàng của tôi</a>
+      <a href="index.php?page=purchase_order" class="btn-outline">Xem đơn hàng của tôi</a>
       <a href="index.php?page=product" class="btn-primary">Tiếp tục mua sắm</a>
     </div>
   </div>

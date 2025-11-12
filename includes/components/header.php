@@ -75,8 +75,8 @@ if ($user_id) {
                 <div class="user-dropdown">
                     <span class="user-name toggle-btn">Xin chào, <?= htmlspecialchars($_SESSION['user']['full_name']); ?></span>
                     <div class="user-menu">
-                        <a href="/fashionstore/index.php?page=information">Thông tin cá nhân</a>
-                        <a href="/fashionstore/index.php?page=purchase_order">Đơn hàng của tôi</a>
+                        <a href="/fashionstore/index.php?page=information" style="text-decoration:none">Thông tin cá nhân</a>
+                        <a href="/fashionstore/index.php?page=purchase_order"style="text-decoration:none">Đơn hàng của tôi</a>
                         <a href="<?= $logout_href ?>" class="logout-btn" style="color:#c33;text-decoration:none;"><i class="fas fa-sign-in-alt"></i> Đăng xuất</a>
                     </div>
                 </div>
