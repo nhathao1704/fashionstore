@@ -4,15 +4,15 @@ include_once "config/config.php"; // config will start session centrally
 $page = $_GET['page'] ?? '';
 
 $allowed_pages = [
-    'product' => 'product/function/product.php',
-    'product_detail' => 'product/function/product_detail.php',
-    'cart' => 'product/function/cart.php',
-    'login' => 'product/function/login.php',
-    'register' => 'product/function/register.php',
-    'pay' => 'product/function/pay.php',
-    'logout' => 'product/function/logout.php',
-    'purchase_order' => 'product/function/purchase_order.php',
-    'information' => 'product/function/information.php',
+    'product' => 'user/function/product.php',
+    'product_detail' => 'user/function/product_detail.php',
+    'cart' => 'user/function/cart.php',
+    'login' => 'user/function/login.php',
+    'register' => 'user/function/register.php',
+    'pay' => 'user/function/pay.php',
+    'logout' => 'user/function/logout.php',
+    'purchase_order' => 'user/function/purchase_order.php',
+    'information' => 'user/function/information.php',
 ];
 
 $layout = 'main';

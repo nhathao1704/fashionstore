@@ -140,6 +140,9 @@ header {
 .cart-icon{
   color:var(--color-bg);
 }
+.fa-solid{
+  color:var(--color-bg);
+}
 .auth-links a {
   text-decoration: none;
   font-weight: 600;
