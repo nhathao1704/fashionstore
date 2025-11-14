@@ -125,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     VALUES ({$role_id}, '{$full_safe}', '{$email_safe}', '{$pass_md5}', NOW())";
 
             if (mysqli_query($conn, $sql)) {
-                header('Location: login.php'); exit;
+                header('Location: /fashionstore/user/function/login.php'); exit;
             } else {
                 $error = "Có lỗi khi tạo tài khoản.";
             }

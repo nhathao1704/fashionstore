@@ -14,15 +14,17 @@
         </div>
     </div>
 
-    <div class="message">
-        <div class="circle"></div>
-        <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183322/8.png"
-             class="icn" alt="notifications">
+   <div class="admin-user" id="adminUser">
         <div class="dp">
             <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210180014/profile-removebg-preview.png"
-                 class="dpicn" alt="avatar">
+                class="dpicn" alt="avatar">
+        </div>
+
+        <div class="admin-dropdown" id="adminDropdown">
+            <a href="../logout.php" class="logout">⮞ Đăng xuất</a>
         </div>
     </div>
+
 </header>
 
 <div class="main-container">

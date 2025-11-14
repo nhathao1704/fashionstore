@@ -124,8 +124,3 @@ ob_start();
   </section>
 </main>
 
-<?php
-$content = ob_get_clean();
-// include the main layout (path relative to product/function -> go up two levels)
-require __DIR__ . '/../../includes/layouts/' . $layout . '.php';
-?>

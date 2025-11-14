@@ -1608,13 +1608,46 @@ footer {
     }
 
     .order-status .status {
-      background: #27ae60;
+      
       color: #fff;
       padding: 5px 12px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 600;
     }
+    .status {
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Chờ xác nhận (1) */
+.status[data-status="1"] {
+    background-color: #f39c12;
+}
+
+/* Đang xử lý (2) */
+.status[data-status="2"] {
+    background-color: #f39c12;
+}
+
+/* Đang giao hàng (3) */
+.status[data-status="3"] {
+    background-color: #3498db;
+}
+
+/* Hoàn thành (4) */
+.status[data-status="4"] {
+    background-color: #2ecc71;
+}
+
+/* ĐÃ HỦY (5) */
+.status[data-status="5"] {
+    background-color: #e74c3c;
+}
+
 
     .order-items {
       padding: 20px;

@@ -1,4 +1,10 @@
 <?php
+session_name("admin_session");
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/config.php';
 
 if (empty($_SESSION['user']) || (int)$_SESSION['user']['role_id'] !== 1) {
@@ -39,7 +45,7 @@ $recent_orders = [];
 // Query đơn hàng gần đây với JOIN bảng order_status để lấy status_name
 $sql_recent_orders = "
     SELECT 
-        o.order_id AS id,
+        o.id_order AS id,
         o.total_amount,
         os.status_name AS status,
         o.order_date AS created_at,
@@ -50,6 +56,7 @@ $sql_recent_orders = "
     ORDER BY o.order_date DESC
     LIMIT 5
 ";
+
 
 if ($res = mysqli_query($conn, $sql_recent_orders)) {
     while ($row = mysqli_fetch_assoc($res)) {
@@ -154,7 +161,7 @@ function format_money($value)
                                 <?php foreach ($recent_orders as $order): ?>
                                     <?php $status_meta = order_status_meta($order['status']); ?>
                                     <div class="item1">
-                                        <h3 class="t-op-nextlvl">#<?php echo h($order['id']); ?></h3>
+                                        <h3 class="t-op-nextlvl"><?php echo h($order['id']); ?></h3>
                                         <h3 class="t-op-nextlvl"><?php echo h($order['customer_name']); ?></h3>
                                         <h3 class="t-op-nextlvl"><?php echo format_money($order['total_amount']); ?></h3>
                                         <h3 class="t-op-nextlvl">

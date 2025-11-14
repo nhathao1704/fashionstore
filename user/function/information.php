@@ -112,6 +112,4 @@ ob_start();
 </main>
 
 
-<?php
-$content = ob_get_clean();
-require __DIR__ . '/../../includes/layouts/' . $layout . '.php';
+

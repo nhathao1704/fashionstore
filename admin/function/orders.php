@@ -1,4 +1,10 @@
 <?php
+session_name("admin_session");
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/config.php';
 
 if (empty($_SESSION['user']) || (int)$_SESSION['user']['role_id'] !== 1) {
@@ -68,7 +74,7 @@ if ($action === 'detail' && $id > 0) {
     if ($order) {
         $items = json_decode($order['items'], true);
         echo '<div style="line-height: 1.8;">';
-        echo '<p><strong>Mã đơn:</strong> #' . $order['order_id'] . '</p>';
+        echo '<p><strong>Mã đơn:</strong> ' . h($order['id_order']) . '</p>';
         echo '<p><strong>Khách hàng:</strong> ' . h($order['full_name']) . '</p>';
         echo '<p><strong>Email:</strong> ' . h($order['email'] ?? 'N/A') . '</p>';
         echo '<p><strong>Trạng thái:</strong> ' . h($order['status_name']) . '</p>';
@@ -262,7 +268,7 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
                                 }
                         ?>
                             <tr>
-                                <td>#<?php echo $r['order_id']; ?></td>
+                                <td><?php echo h($r['id_order']); ?></td>
                                 <td><?php echo h($r['full_name'] ?? 'N/A'); ?></td>
                                 <td><?php echo number_format($r['total_amount'], 0, ',', '.'); ?>đ</td>
                                 <td><?php echo date('Y-m-d', strtotime($r['order_date'])); ?></td>
