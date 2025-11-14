@@ -156,7 +156,7 @@ header {
 /* MAIN CONTENT */
 .main {
   flex: 1;
-  padding:10px;
+  padding:20px;
   overflow-y: auto;
 }
 
