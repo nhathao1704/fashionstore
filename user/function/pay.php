@@ -67,7 +67,7 @@ ob_start();
             </div>
             <div class="delivery-content-left-button">
               <a href="index.php?page=cart" class="back-link"><span>&#171;</span> Quay lại giỏ hàng</a>
-              <?php // include a hidden checkout token if available to help recover order ?>
+              <?php ?>
               <?php if (!empty($_SESSION['checkout_token'])): ?>
                 <input type="hidden" name="checkout_token" value="<?= htmlspecialchars($_SESSION['checkout_token']) ?>">
               <?php endif; ?>

@@ -34,7 +34,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $result = mysqli_query($conn, $sql);
         if ($result && mysqli_num_rows($result) === 1) {
             $user = mysqli_fetch_assoc($result);
-            // Regenerate session id to prevent session fixation
             if (session_status() === PHP_SESSION_ACTIVE) {
                 session_regenerate_id(true);
             }

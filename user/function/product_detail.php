@@ -142,8 +142,6 @@ while ($v = mysqli_fetch_assoc($resVar)) $variants[] = $v;
         if (v < 1) v = 1;
         qtyInput.value = v;
     });
-
-    // auto-select first available
     (function autoSelect(){
         const first = Array.from(chips).find(c => parseInt(c.dataset.stock||'0',10) > 0);
         if (first) first.click();
@@ -176,11 +174,9 @@ while ($v = mysqli_fetch_assoc($resVar)) $variants[] = $v;
                 }
                 throw new Error(json.error || 'Lỗi khi thêm vào giỏ');
             }
-            // update header count if exists
             if (json.data && typeof json.data.cart_count !== 'undefined') {
                 const el = document.querySelector('.cart-count'); if (el) el.textContent = json.data.cart_count;
-            }
-            // show small message (reuse browser alert for simplicity)
+            }    
             alert(json.data && json.data.message ? json.data.message : 'Đã thêm vào giỏ');
         } catch (err) {
             console.error(err);

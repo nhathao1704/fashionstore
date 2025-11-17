@@ -35,7 +35,7 @@ if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: users.php'); exit;
 }
 
-/* === UPDATE === */
+/* cap nhat*/
 if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
     $full  = mysqli_real_escape_string($conn, trim($_POST['full_name']));
     $email = mysqli_real_escape_string($conn, trim($_POST['email']));
@@ -64,20 +64,20 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
     header('Location: users.php'); exit;
 }
 
-/* === DELETE === */
+/* xoa */
 if ($action === 'delete' && $id > 0) {
     mysqli_query($conn, "DELETE FROM users WHERE user_id=$id");
     header('Location: users.php'); exit;
 }
 
-/* === EDITING === */
+/* sua */
 $editing = null;
 if ($action === 'edit' && $id > 0) {
     $r = mysqli_query($conn, "SELECT * FROM users WHERE user_id=$id");
     $editing = $r ? mysqli_fetch_assoc($r) : null;
 }
 
-/* === LIST USERS === */
+/* danh sach users*/
 $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
 ?>
 <?php include "../layout/head.php"; ?>
@@ -86,7 +86,6 @@ $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
 
         <div class="table-container">
 
-            <!-- BUTTON ADD -->
             <div style="margin-bottom:20px;">
                 <a class="btn-edit" href="users.php?action=new" 
                    style="display:inline-block;padding:10px 20px;background:#27ae60;color:#fff;text-decoration:none;border-radius:5px;">
@@ -94,7 +93,6 @@ $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
                 </a>
             </div>
 
-            <!-- FORM CREATE / UPDATE -->
             <?php if ($action === 'new' || $editing): ?>
                 <div class="table-container" style="margin-bottom:30px;">
                     <h2><?php echo $editing ? 'Cập nhật User' : 'Tạo User mới'; ?></h2>
@@ -158,7 +156,7 @@ $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
                 </div>
             <?php endif; ?>
 
-            <!-- USER TABLE -->
+            <!-- Bảng users -->
             <table class="admin-table">
                 <thead>
                     <tr>

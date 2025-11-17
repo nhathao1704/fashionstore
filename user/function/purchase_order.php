@@ -5,9 +5,7 @@ $layout = 'main';
 $page_title = 'Xác nhận đơn hàng - FashionStore';
 
 
-// ======================================================
-// A. HỦY ĐƠN HÀNG
-// ======================================================
+//  HỦY ĐƠN HÀNG
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cancel_order') {
 
@@ -51,9 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cance
 
 
 
-// ======================================================
-// B. XEM DANH SÁCH ĐƠN HÀNG (GET)
-// ======================================================
+//  XEM DANH SÁCH ĐƠN HÀNG (GET)
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
@@ -173,9 +170,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 
 
-// ======================================================
-// C. TẠO ĐƠN HÀNG MỚI (POST)
-// ======================================================
+
+// TẠO ĐƠN HÀNG MỚI (POST)
 
 if (empty($_SESSION['user'])) {
     echo "<p>Bạn cần đăng nhập.</p>";
@@ -209,9 +205,7 @@ if (empty($checkout['items'])) {
 }
 
 
-// ======================================
 // Tạo MÃ ĐƠN HÀNG ODR00001
-// ======================================
 
 $res = mysqli_query($conn, "
     SELECT id_order 
@@ -232,9 +226,8 @@ if (!$row) {
 }
 
 
-// ======================================
+
 // INSERT ĐƠN HÀNG
-// ======================================
 
 $shipping_address = $data['address'] . ', ' . $data['district'] . ', ' . $data['city'];
 $items_json = json_encode($checkout['items'], JSON_UNESCAPED_UNICODE);
