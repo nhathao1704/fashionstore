@@ -42,9 +42,9 @@ if ($user_id && isset($conn)) {
 }
 ?>
 <header>
-    <div class="logo">
-        <a href="/fashionstore/index.php" style="text-decoration:none;color:white;">Vogue Lane Clothing</a>
-    </div>
+    <a href="/fashionstore/index.php" class="logo">
+        <img src="/fashionstore/uploads/logo.jpg" alt="Logo">
+    </a>
 
     <nav class="navbar">
         <ul>

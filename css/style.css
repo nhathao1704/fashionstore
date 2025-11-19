@@ -40,9 +40,16 @@ header {
 }
 
 .logo {
-  font-size: 22px;
   font-weight: 600;
 }
+.logo img {
+  height: 60px;        
+  width: 90px;         
+  display: block;     
+  
+  cursor: pointer;
+}
+
 
 .navbar ul {
   list-style: none;
@@ -1624,30 +1631,6 @@ footer {
     font-weight: bold;
 }
 
-/* Chờ xác nhận (1) */
-.status[data-status="1"] {
-    background-color: #f39c12;
-}
-
-/* Đang xử lý (2) */
-.status[data-status="2"] {
-    background-color: #f39c12;
-}
-
-/* Đang giao hàng (3) */
-.status[data-status="3"] {
-    background-color: #3498db;
-}
-
-/* Hoàn thành (4) */
-.status[data-status="4"] {
-    background-color: #2ecc71;
-}
-
-/* ĐÃ HỦY (5) */
-.status[data-status="5"] {
-    background-color: #e74c3c;
-}
 
 
     .order-items {
@@ -1757,7 +1740,7 @@ footer {
     margin-bottom: 10px;
     border-radius: 6px;
 }
-
+/* Status badges */
 .status {
     padding: 6px 12px;
     border-radius: 6px;
@@ -1777,4 +1760,63 @@ footer {
 
 .status.cancel {
     background: #e74c3c; 
+}
+/* DANH GIA SAN PHAM */
+.feedback-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.feedback-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.feedback-item:last-child {
+    border-bottom: none;
+}
+
+.fb-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 5px;
+}
+
+.fb-content {
+    font-size: 15px;
+    color: #333;
+}
+
+.feedback-form {
+    margin-top: 25px;
+}
+
+.feedback-form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+.login-to-rate {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #666;
+}
+
+.login-to-rate a {
+    color: #6a5af9;            /* màu tím nhẹ */
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: 0.25s;
+}
+
+.login-to-rate a:hover {
+    color: #4b35e6;            /* tím đậm hơn khi hover */
+    border-bottom-color: #4b35e6;
 }
