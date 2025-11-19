@@ -17,7 +17,7 @@ $id     = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 function h($s) { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
 
-/* === CREATE === */
+/* CREATE */
 if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $full  = mysqli_real_escape_string($conn, trim($_POST['full_name']));
     $email = mysqli_real_escape_string($conn, trim($_POST['email']));

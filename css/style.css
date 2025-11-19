@@ -1717,3 +1717,64 @@ footer {
     .btn-primary:hover {
       background: #e66d00;
     }
+
+    .promo-popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.promo-popup-content {
+    background: #fff;
+    padding: 20px;
+    width: 400px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.promo-close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.promo-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.promo-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+
+.status {
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status.pending {
+    background: #f39c12; 
+}
+
+.status.done {
+    background: #27ae60; 
+}
+
+.status.cancel {
+    background: #e74c3c; 
+}

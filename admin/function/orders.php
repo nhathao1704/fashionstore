@@ -19,7 +19,7 @@ function h($s) {
     return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 }
 
-// === Tạo đơn hàng mới ===
+//  Tạo đơn hàng mới 
 if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = (int)($_POST['user_id'] ?? 0);
     $total = (float)($_POST['total_amount'] ?? 0);
@@ -32,7 +32,7 @@ if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// === Cập nhật đơn hàng ===
+//  Cập nhật đơn hàng 
 if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
     $status_id = (int)($_POST['status_id'] ?? 1);
     
@@ -53,60 +53,111 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
     exit;
 }
 
-// === Xóa đơn hàng ===
+//  Xóa đơn hàng 
 if ($action === 'delete' && $id > 0) {
     mysqli_query($conn, "DELETE FROM orders WHERE order_id=$id");
     header('Location: orders.php');
     exit;
 }
 
-// === Xem chi tiết đơn hàng ===
+
+// Xem chi tiết đơn hàng 
 if ($action === 'detail' && $id > 0) {
+
     $r = mysqli_query($conn, "
-        SELECT o.*, u.full_name, u.email, os.status_name
+        SELECT 
+            o.*, 
+            u.full_name, 
+            u.email, 
+            os.status_name,
+            p.promotion_name,
+            p.promotion_code
         FROM orders o 
         LEFT JOIN users u ON o.user_id = u.user_id 
         LEFT JOIN order_status os ON o.status_id = os.status_id
+        LEFT JOIN promotions p ON o.promotion_id = p.promotion_id
         WHERE o.order_id = $id
     ");
+
     $order = $r ? mysqli_fetch_assoc($r) : null;
-    
+
     if ($order) {
+
         $items = json_decode($order['items'], true);
+
+        // Tổng tiền ban đầu = tổng cuối + giảm giá
+        $discount = (int)($order['discount_amount'] ?? 0);
+        $final_total = (int)($order['total_amount'] ?? 0);
+        $original_total = $final_total + $discount;
+
         echo '<div style="line-height: 1.8;">';
+
         echo '<p><strong>Mã đơn:</strong> ' . h($order['id_order']) . '</p>';
         echo '<p><strong>Khách hàng:</strong> ' . h($order['full_name']) . '</p>';
         echo '<p><strong>Email:</strong> ' . h($order['email'] ?? 'N/A') . '</p>';
         echo '<p><strong>Trạng thái:</strong> ' . h($order['status_name']) . '</p>';
         echo '<p><strong>Ngày đặt:</strong> ' . date('d/m/Y H:i', strtotime($order['order_date'])) . '</p>';
         echo '<p><strong>Địa chỉ giao hàng:</strong> ' . h($order['shipping_address'] ?? 'N/A') . '</p>';
-        echo '<p><strong>Tổng tiền:</strong> ' . number_format($order['total_amount'], 0, ',', '.') . 'đ</p>';
-        
+
+        // TIỀN & GIẢM GIÁ
+        echo '<hr style="margin:10px 0;">';
+        echo '<h3>Thanh toán:</h3>';
+
+        echo '<p><strong>Tổng tiền ban đầu:</strong> ' . number_format($original_total, 0, ',', '.') . 'đ</p>';
+
+        if ($discount > 0) {
+            echo '<p><strong>Giảm giá:</strong> -' . number_format($discount, 0, ',', '.') . 'đ</p>';
+
+            if (!empty($order['promotion_code'])) {
+                echo '<p><strong>Mã khuyến mãi:</strong> ' . h($order['promotion_code']) . '</p>';
+            } elseif (!empty($order['promotion_name'])) {
+                echo '<p><strong>Khuyến mãi:</strong> ' . h($order['promotion_name']) . '</p>';
+            }
+        }
+
+        echo '<p><strong>Tổng thanh toán:</strong> ' . number_format($final_total, 0, ',', '.') . 'đ</p>';
+
+        // DANH SÁCH SẢN PHẨM
         if ($items && is_array($items)) {
             echo '<h3 style="margin-top: 20px; margin-bottom: 10px;">Sản phẩm:</h3>';
+
             echo '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">';
-            echo '<thead><tr style="background: #f5f5f5;"><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Tên sản phẩm</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Số lượng</th><th style="padding: 10px; text-align: right; border: 1px solid #ddd;">Giá</th><th style="padding: 10px; text-align: right; border: 1px solid #ddd;">Thành tiền</th></tr></thead>';
+            echo '<thead>
+                    <tr style="background: #f5f5f5;">
+                        <th style="padding: 10px; border: 1px solid #ddd;">Tên sản phẩm</th>
+                        <th style="padding: 10px; border: 1px solid #ddd;">Số lượng</th>
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align:right;">Giá</th>
+                        <th style="padding: 10px; border: 1px solid #ddd; text-align:right;">Thành tiền</th>
+                    </tr>
+                  </thead>';
             echo '<tbody>';
+
             foreach ($items as $item) {
-                $product_name = h($item['product_name'] ?? 'Sản phẩm');
-                $quantity = (int)($item['quantity'] ?? 1);
+                $name = h($item['product_name'] ?? 'Sản phẩm');
+                $qty = (int)($item['quantity'] ?? 1);
                 $price = (float)($item['price'] ?? 0);
-                $total = $price * $quantity;
+                $total = $price * $qty;
+
                 echo '<tr>';
-                echo '<td style="padding: 10px; border: 1px solid #ddd;">' . $product_name . '</td>';
-                echo '<td style="padding: 10px; border: 1px solid #ddd;">' . $quantity . '</td>';
-                echo '<td style="padding: 10px; text-align: right; border: 1px solid #ddd;">' . number_format($price, 0, ',', '.') . 'đ</td>';
-                echo '<td style="padding: 10px; text-align: right; border: 1px solid #ddd;">' . number_format($total, 0, ',', '.') . 'đ</td>';
+                echo '<td style="padding:10px;border:1px solid #ddd;">' . $name . '</td>';
+                echo '<td style="padding:10px;border:1px solid #ddd;">' . $qty . '</td>';
+                echo '<td style="padding:10px;border:1px solid #ddd;text-align:right;">' . number_format($price, 0, ',', '.') . 'đ</td>';
+                echo '<td style="padding:10px;border:1px solid #ddd;text-align:right;">' . number_format($total, 0, ',', '.') . 'đ</td>';
                 echo '</tr>';
             }
+
             echo '</tbody></table>';
         }
+
         echo '</div>';
+
     } else {
         echo '<p>Không tìm thấy đơn hàng.</p>';
     }
+
     exit;
 }
+
 
 // === Lấy dữ liệu đơn hàng để chỉnh sửa ===
 $editing = null;

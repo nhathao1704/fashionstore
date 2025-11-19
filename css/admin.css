@@ -114,37 +114,43 @@ header {
 .nav-upper-options {
   display: flex;
   flex-direction: column;
+   gap: 5px;
 }
 
 .nav-option {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  gap: 12px;
-  cursor: pointer;
-  transition: background 0.3s;
-  text-decoration: none;
-  color: #fff;
+  width: 100%;
 }
 
-.nav-option:hover,
-.nav-option.option1 {
+
+.nav-option a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: #fff;
+  transition: background 0.3s;
+}
+
+
+.nav-option a:hover,
+.nav-option.active a {
   background: #2c3e50;
 }
 
-.nav-option h3 {
-  font-size: 15px;
+
+.nav-option span {
+  font-size: 18px;
   font-weight: 500;
+  color: #fff;
 }
 
-.nav-option a {
-  color: #fff;
-  text-decoration: none;
-}
 
 .nav-img {
   width: 22px;
   height: 22px;
+  flex-shrink: 0;
 }
 
 .nav-option.logout {

@@ -21,7 +21,7 @@
         </div>
 
         <div class="admin-dropdown" id="adminDropdown">
-            <a href="../logout.php" class="logout">⮞ Đăng xuất</a>
+            <a href="../function/logout.php" class="logout">⮞ Đăng xuất</a>
         </div>
     </div>
 
@@ -31,39 +31,46 @@
     <div class="navcontainer" id="nav">
         <nav class="nav">
             <div class="nav-upper-options">
-
                 <div class="nav-option">
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182148/Untitled-design-(29).png"
-                         class="nav-img" alt="dashboard">
-                    <h3><a href="dashboard.php">Dashboard</a></h3>
+                    <a href="dashboard.php" class="nav-link">
+                        <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182148/Untitled-design-(29).png"
+                             class="nav-img" alt="dashboard">
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-option">
+                    <a href="products.php" class="nav-link">
+                        <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183322/9.png"
+                             class="nav-img" alt="products">
+                        <span>Sản phẩm</span>
+                    </a>
                 </div>
 
                 <div class="nav-option">
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183322/9.png"
-                         class="nav-img" alt="products">
-                    <h3><a href="products.php">Sản phẩm</a></h3>
+                   <a href="orders.php" class="nav-link">
+                        <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183320/5.png"
+                             class="nav-img" alt="orders">
+                        <span>Đơn hàng</span>
+                    </a>
                 </div>
 
-                <div class="nav-option">
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183320/5.png"
-                         class="nav-img" alt="orders">
-                    <h3><a href="orders.php">Đơn hàng</a></h3>
-                </div>
-
-                <div class="nav-option ">
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183323/10.png"
-                         class="nav-img" alt="users">
-                    <h3><a href="users.php">Người dùng</a></h3>
+              <div class="nav-option">
+                    <a href="users.php" class="nav-link">
+                        <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183323/10.png"
+                             class="nav-img" alt="users">
+                        <span>Người dùng</span>
+                    </a>
                 </div>
 
                 <div class="nav-option logout">
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183321/7.png"
-                         class="nav-img" alt="home">
-                    <h3><a href="../../index.php">Về trang chủ</a></h3>
+                    <a href="../../index.php" class="nav-link">
+                        <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183321/7.png"
+                             class="nav-img" alt="home">
+                        <span>Về trang chủ</span>
+                    </a>
                 </div>
 
             </div>
         </nav>
     </div>
-    <!-- ❗ MỞ MAIN Ở ĐÂY – không được đóng trong file này -->
     <div class="main">

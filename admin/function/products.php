@@ -21,9 +21,7 @@ function h($s) {
 
 $user_id = (int)($_SESSION['user']['user_id'] ?? 0);
 
-/* ===============================
-    CREATE PRODUCT
-================================ */
+/* CREATE PRODUCT */
 if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_name = mysqli_real_escape_string($conn, trim($_POST['product_name'] ?? ''));
     $category_id = (int)($_POST['category_id'] ?? 0);
@@ -63,9 +61,7 @@ if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-/* ===============================
-    UPDATE PRODUCT
-================================ */
+/* UPDATE PRODUCT*/
 if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
     $product_name = mysqli_real_escape_string($conn, trim($_POST['product_name'] ?? ''));
     $category_id = (int)($_POST['category_id'] ?? 0);
@@ -104,9 +100,7 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
     exit;
 }
 
-/* ===============================
-    DELETE PRODUCT
-================================ */
+/* DELETE PRODUCT*/
 if ($action === 'delete' && $id > 0) {
     mysqli_query($conn, "DELETE FROM products WHERE product_id=$id");
     mysqli_query($conn, "DELETE FROM productimages WHERE product_id=$id");
@@ -121,9 +115,7 @@ if ($action === 'edit' && $id > 0) {
     $editing = $r ? mysqli_fetch_assoc($r) : null;
 }
 
-/* ===============================
-    GET LIST OF PRODUCTS
-================================ */
+/*   GET LIST OF PRODUCTS */
 $rows = mysqli_query($conn, "
     SELECT p.*, c.category_name
     FROM products p
@@ -131,9 +123,7 @@ $rows = mysqli_query($conn, "
     ORDER BY p.created_at DESC
 ");
 
-/* ===============================
-    CATEGORIES
-================================ */
+/*  CATEGORIES*/
 $categories = mysqli_query($conn, "SELECT category_id, category_name FROM categories ORDER BY category_name");
 
 ?>
