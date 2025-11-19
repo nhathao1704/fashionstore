@@ -9,7 +9,6 @@ if ($product_id <= 0) {
 }
 
 // XỬ LÝ THÊM VÀO GIỎ HÀNG
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['variant_id']) && ($_POST['action'] ?? '') !== 'add_feedback') {
 
     if (empty($_SESSION['user']) && empty($_SESSION['user_id'])) {
@@ -81,8 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['variant_id']) && ($_P
 }
 
 
-// XỬ LÝ THÊM ĐÁNH GIÁ SẢN PHẨM
-
+// XỬ LÝ THÊM FEEDBACK
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_feedback') {
 
     if (empty($_SESSION['user_id'])) {
@@ -94,15 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_f
     $uid = (int)$_SESSION['user_id'];
     $rating = (int)$_POST['rating'];
     $comment = mysqli_real_escape_string($conn, trim($_POST['comment']));
-
     if ($rating < 1 || $rating > 5) $rating = 5;
 
-    $sqlAddFb = "
-        INSERT INTO feedbacks (user_id, product_id, rating, comment, feedback_date)
-        VALUES ({$uid}, {$product_id}, {$rating}, '{$comment}', NOW())
-    ";
-
-    mysqli_query($conn, $sqlAddFb);
+    mysqli_query($conn,
+        "INSERT INTO feedbacks (user_id, product_id, rating, comment, feedback_date)
+         VALUES ({$uid}, {$product_id}, {$rating}, '{$comment}', NOW())"
+    );
 
     $_SESSION['flash_success'] = "Cảm ơn bạn đã đánh giá sản phẩm!";
     header("Location: /fashionstore/index.php?page=product_detail&id={$product_id}");
@@ -112,7 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_f
 
 
 // LẤY THÔNG TIN SẢN PHẨM
-
 $sql = "SELECT p.product_id, p.product_name, p.description,
                (SELECT MIN(price) FROM ProductVariants WHERE product_id=p.product_id) AS min_price
         FROM Products p
@@ -143,17 +137,23 @@ $resVar = mysqli_query($conn,
 while ($v = mysqli_fetch_assoc($resVar)) $variants[] = $v;
 
 
+// ⭐ LỌC FEEDBACK THEO SAO
+$filterStar = isset($_GET['star']) ? (int)$_GET['star'] : 0;
 
-// LẤY DANH SÁCH FEEDBACK
-
-$feedbacks = [];
 $sqlFb = "
     SELECT f.*, u.full_name
     FROM feedbacks f
     JOIN Users u ON u.user_id = f.user_id
     WHERE f.product_id = {$product_id}
-    ORDER BY f.feedback_id DESC
 ";
+
+if ($filterStar >= 1 && $filterStar <= 5) {
+    $sqlFb .= " AND f.rating = {$filterStar} ";
+}
+
+$sqlFb .= " ORDER BY f.feedback_id DESC ";
+
+$feedbacks = [];
 $resFb = mysqli_query($conn, $sqlFb);
 while ($fb = mysqli_fetch_assoc($resFb)) $feedbacks[] = $fb;
 
@@ -246,6 +246,7 @@ while ($fb = mysqli_fetch_assoc($resFb)) $feedbacks[] = $fb;
                 <button type="submit" class="btn-primary" id="addToCartBtn" disabled>
                     <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
                 </button>
+                 <a href="/fashionstore/index.php?page=cart" class="btn-outline" style="text-decoration: none">Xem giỏ hàng</a>
             </form>
 
             <!-- MÔ TẢ -->
@@ -259,8 +260,26 @@ while ($fb = mysqli_fetch_assoc($resFb)) $feedbacks[] = $fb;
             <div class="feedback-box">
                 <h3>Đánh giá sản phẩm</h3>
 
+                <!-- ⭐ BỘ LỌC SAO -->
+                <div style="margin: 15px 0;">
+                    <form method="get" style="display:flex; gap:10px; align-items:center;">
+                        <input type="hidden" name="page" value="product_detail">
+                        <input type="hidden" name="id" value="<?= $product_id ?>">
+
+                        <label><b>Lọc theo sao:</b></label>
+                        <select name="star" onchange="this.form.submit()">
+                            <option value="">Tất cả</option>
+                            <option value="5" <?= ($filterStar==5?'selected':'') ?>>5 sao</option>
+                            <option value="4" <?= ($filterStar==4?'selected':'') ?>>4 sao</option>
+                            <option value="3" <?= ($filterStar==3?'selected':'') ?>>3 sao</option>
+                            <option value="2" <?= ($filterStar==2?'selected':'') ?>>2 sao</option>
+                            <option value="1" <?= ($filterStar==1?'selected':'') ?>>1 sao</option>
+                        </select>
+                    </form>
+                </div>
+
                 <?php if (empty($feedbacks)): ?>
-                    <p>Chưa có đánh giá nào.</p>
+                    <p>Không có đánh giá nào.</p>
                 <?php else: ?>
                     <?php foreach ($feedbacks as $fb): ?>
                         <div class="feedback-item">
