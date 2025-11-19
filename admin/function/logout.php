@@ -73,3 +73,4 @@ ob_start();
 <?php $content = ob_get_clean(); 
 require __DIR__ . '/../../includes/layouts/' . $layout . '.php'; 
 exit;
+<a href="/fashionstore/index.php?page=cart" class="btn-outline">Xem giỏ hàng</a>

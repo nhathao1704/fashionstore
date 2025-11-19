@@ -200,9 +200,10 @@ header {
 /* --- GRID SẢN PHẨM --- */
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 23px;
 }
+
 
 /* --- KHUNG SẢN PHẨM --- */
 .product-card {

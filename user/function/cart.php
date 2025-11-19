@@ -18,7 +18,37 @@ if (empty($_SESSION['user']) && empty($_SESSION['user_id'])) {
 
 $user_id = !empty($_SESSION['user']) ? (int)$_SESSION['user']['user_id'] : (int)$_SESSION['user_id'];
 
-// Lấy thông tin giỏ hàng
+
+
+// Xử lý cập nhật số lượng
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_qty'])) {
+    $item_id = (int)$_POST['cart_item_id'];
+    $new_qty = (int)$_POST['quantity'];
+    if ($new_qty < 1) $new_qty = 1;
+
+    mysqli_query($conn, "UPDATE CartItems SET quantity = {$new_qty} WHERE cart_item_id = {$item_id}");
+
+    header("Location: /fashionstore/index.php?page=cart");
+    exit;
+}
+
+
+
+// Xử lý xóa sản phẩm
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_item'])) {
+    $item_id = (int)$_POST['cart_item_id'];
+
+    mysqli_query($conn, "DELETE FROM CartItems WHERE cart_item_id = {$item_id}");
+
+    header("Location: /fashionstore/index.php?page=cart");
+    exit;
+}
+
+
+//   Lấy thông tin giỏ hàng
+
 $cart = mysqli_fetch_assoc(mysqli_query($conn, 
     "SELECT cart_id FROM Carts WHERE user_id = {$user_id} LIMIT 1"
 ));
@@ -46,6 +76,7 @@ if ($cart) {
     ";
         
     $result = mysqli_query($conn, $sql);
+
     while ($row = mysqli_fetch_assoc($result)) {
         $items[] = $row;
         $total_amount += $row['price_at_added'] * $row['quantity'];
@@ -53,9 +84,12 @@ if ($cart) {
     }
 }
 
-// Xử lý khi người dùng nhấn Thanh toán: chuyển dữ liệu thanh toán sang pay.php qua session
+
+
+//  Xử lý bấm nút THANH TOÁN
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && $_POST['action'] === 'checkout') {
-    // Đảm bảo có giỏ hàng
+
     $checkout_payload = [
         'user_id' => $user_id,
         'cart_id' => $cart['cart_id'] ?? null,
@@ -69,25 +103,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && $_POST[
         $checkout_payload['items'][] = [
             'product_id' => $it['product_id'],
             'product_name' => $it['product_name'],
-            'variant' => $it['size'] ?? null,
+            'variant' => $it['size'],
             'quantity' => (int)$it['quantity'],
             'price' => (float)$it['price_at_added'],
-            'image' => $it['image_url'] ?? null
+            'image' => $it['image_url']
         ];
     }
 
-    // Lưu payload vào session để pay.php lấy
     $_SESSION['checkout_order'] = $checkout_payload;
 
-    // Chuyển hướng sang trang thanh toán
-    header('Location: /fashionstore/index.php?page=pay');
+    header("Location: /fashionstore/index.php?page=pay");
     exit;
 }
 
-
-
 ob_start();
 ?>
+
+<!-- HTML HIỂN THỊ GIỎ HÀNG-->
 
 <main class="cart-page">
     <div class="cart-container">
@@ -104,12 +136,15 @@ ob_start();
         <div class="cart-content">
             <div class="cart-items">
                 <?php foreach ($items as $item): ?>
-                <div class="cart-item" data-id="<?= $item['cart_item_id'] ?>">
+                <div class="cart-item">
+
+                    <!-- Hình ảnh -->
                     <div class="item-image">
                         <img src="<?= htmlspecialchars($item['image_url']) ?>" 
                              alt="<?= htmlspecialchars($item['product_name']) ?>">
                     </div>
                                 
+                    <!-- Chi tiết sản phẩm -->
                     <div class="item-details">
                         <h3>
                             <a href="index.php?page=product_detail&id=<?= $item['product_id'] ?>">
@@ -120,52 +155,65 @@ ob_start();
                         <p class="price"><?= number_format($item['price_at_added'], 0, ",", ".") ?>đ</p>
                     </div>
                                 
+                    <!-- Số lượng -->
                     <div class="item-quantity">
-                        <div class="quantity-control">
-                            <button type="button" class="qty-btn minus">-</button>
-                            <input type="number" value="<?= $item['quantity'] ?>" 
-                                 min="1" max="<?= $item['stock_quantity'] ?>"
-                                 class="qty-input"
-                                 data-id="<?= $item['cart_item_id'] ?>"
-                                 data-price="<?= $item['price_at_added'] ?>">
-                            <button type="button" class="qty-btn plus">+</button>
-                        </div>
-                        <button class="remove-item">
-                            <i class="fas fa-trash"></i> Xóa
-                        </button>
+                        <form method="post">
+                            <div class="quantity-control">
+                                <button type="submit" name="update_qty" class="qty-btn minus"
+                                        onclick="this.parentNode.querySelector('input').stepDown()">
+                                    -
+                                </button>
+
+                                <input type="number"
+                                    name="quantity"
+                                    value="<?= $item['quantity'] ?>"
+                                    min="1"
+                                    max="<?= $item['stock_quantity'] ?>"
+                                    class="qty-input">
+
+                                <button type="submit" name="update_qty" class="qty-btn plus"
+                                        onclick="this.parentNode.querySelector('input').stepUp()">
+                                    +
+                                </button>
+                            </div>
+
+                            <input type="hidden" name="cart_item_id" value="<?= $item['cart_item_id'] ?>">
+                        </form>
+
+                        <!-- nút xóa -->
+                        <form method="post">
+                            <input type="hidden" name="cart_item_id" value="<?= $item['cart_item_id'] ?>">
+                            <button type="submit" name="remove_item" class="remove-item">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </form>
                     </div>
                                 
+                    <!-- Thành tiền -->
                     <div class="item-total">
                         <?= number_format($item['price_at_added'] * $item['quantity'], 0, ",", ".") ?>đ
                     </div>
+
                 </div>
                 <?php endforeach; ?>
             </div>
                     
+            <!-- Tóm tắt giỏ hàng -->
             <div class="cart-summary">
                 <h3>Tổng giỏ hàng</h3>
-                <div class="summary-row">
-                    <span>Tổng sản phẩm:</span>
-                    <span class="total-items"><?= $total_items ?></span>
-                </div>
-                <div class="summary-row">
-                    <span>Tạm tính:</span>
-                    <span class="total-amount"><?= number_format($total_amount, 0, ",", ".") ?>đ</span>
-                </div>
-                <div class="summary-row">
-                    <span>Phí vận chuyển:</span>
-                    <span>Miễn phí</span>
-                </div>
+                <div class="summary-row"><span>Tổng sản phẩm:</span><span><?= $total_items ?></span></div>
+                <div class="summary-row"><span>Tạm tính:</span><span><?= number_format($total_amount, 0, ",", ".") ?>đ</span></div>
+                <div class="summary-row"><span>Phí vận chuyển:</span><span>Miễn phí</span></div>
                 <div class="summary-row total">
-                    <span>Thành tiền:</span>
-                    <span class="final-total"><?= number_format($total_amount, 0, ",", ".") ?>đ</span>
+                    <span>Thành tiền:</span><span><?= number_format($total_amount, 0, ",", ".") ?>đ</span>
                 </div>
                         
                 <div class="cart-actions">
                     <a href="index.php?page=product" class="btn-outline">
                         <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
                     </a>
-                    <form method="post" style="display:inline;">
+
+                    <form method="post">
                         <input type="hidden" name="action" value="checkout">
                         <button type="submit" class="btn-primary">
                             Thanh toán <i class="fas fa-arrow-right"></i>
@@ -173,124 +221,13 @@ ob_start();
                     </form>
                 </div>
             </div>
+
         </div>
+
         <?php endif; ?>
     </div>
 </main>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.querySelector('.cart-items');
-    if (!container) return;
-
-    function updateTotals() {
-        let totalItems = 0;
-        let totalAmount = 0;
-                
-        document.querySelectorAll('.cart-item').forEach(item => {
-            const qty = parseInt(item.querySelector('.qty-input').value);
-            const price = parseFloat(item.querySelector('.qty-input').dataset.price);
-            totalItems += qty;
-            totalAmount += qty * price;
-            item.querySelector('.item-total').textContent = 
-                new Intl.NumberFormat('vi-VN').format(qty * price) + 'đ';
-        });
-        document.querySelector('.total-items').textContent = totalItems;
-        document.querySelector('.total-amount').textContent = 
-            new Intl.NumberFormat('vi-VN').format(totalAmount) + 'đ';
-        document.querySelector('.final-total').textContent = 
-            new Intl.NumberFormat('vi-VN').format(totalAmount) + 'đ';
-        updateCartCount(totalItems);
-    }
-
-    // Cập nhật số lượng hiển thị ở header (giỏ hàng)
-    function updateCartCount(n) {
-        const el = document.querySelector('.cart-count');
-        if (!el) return;
-        el.textContent = n;
-    }
-
-    container.addEventListener('click', function(e) {
-        if (!e.target.classList.contains('qty-btn')) return;
-                
-        const input = e.target.parentNode.querySelector('.qty-input');
-        const currentVal = parseInt(input.value);
-        const max = parseInt(input.max);
-                
-        if (e.target.classList.contains('minus')) {
-            if (currentVal > 1) input.value = currentVal - 1;
-        } else {
-            if (currentVal < max) input.value = currentVal + 1;
-        }
-                
-        updateQuantity(input);
-    });
-
-    container.addEventListener('change', function(e) {
-        if (!e.target.classList.contains('qty-input')) return;
-        updateQuantity(e.target);
-    });
-
-    container.addEventListener('click', async function(e) {
-        const removeBtn = e.target.closest('.remove-item');
-        if (!removeBtn) return;
-                
-        if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
-                
-        const item = removeBtn.closest('.cart-item');
-        const itemId = item.dataset.id;
-                
-        try {
-            const response = await fetch('/fashionstore/api/remove_from_cart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ cart_item_id: itemId })
-            });
-                    
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-                    
-            item.remove();
-            updateTotals();
-                    
-            if (document.querySelectorAll('.cart-item').length === 0) {
-                location.reload(); 
-            }
-                    
-            showMessage('Đã xóa sản phẩm khỏi giỏ hàng');
-        } catch (error) {
-            showMessage(error.message, true);
-        }
-    });
-
-    async function updateQuantity(input) {
-        const newQty = parseInt(input.value);
-        const itemId = input.dataset.id;
-                
-        try {
-            const response = await fetch('/fashionstore/api/update_cart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    cart_item_id: itemId,
-                    quantity: newQty
-                })
-            });
-                    
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-                    
-            updateTotals();
-        } catch (error) {
-            showMessage(error.message, true);
-            input.value = input.defaultValue;
-            updateTotals();
-        }
-    }
-});
-</script>
-
+<?php $content = ob_get_clean(); 
+require __DIR__ . '/../../includes/layouts/' . $layout . '.php'; 
+exit;

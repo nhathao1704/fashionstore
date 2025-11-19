@@ -114,9 +114,7 @@ if ($action === 'delete' && $id > 0) {
     exit;
 }
 
-/* ===============================
-    GET PRODUCT FOR EDIT
-================================ */
+/* GET PRODUCT FOR EDIT */
 $editing = null;
 if ($action === 'edit' && $id > 0) {
     $r = mysqli_query($conn, "SELECT * FROM products WHERE product_id=$id");
