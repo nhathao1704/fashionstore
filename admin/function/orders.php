@@ -155,21 +155,21 @@ if ($action === 'detail' && $id > 0) {
 }
 
 
-// === Lấy dữ liệu đơn hàng để chỉnh sửa ===
+//  Lấy dữ liệu đơn hàng để chỉnh sửa 
 $editing = null;
 if ($action === 'edit' && $id > 0) {
     $r = mysqli_query($conn, "SELECT * FROM orders WHERE order_id=$id");
     $editing = $r ? mysqli_fetch_assoc($r) : null;
 }
 
-// === Filter theo trạng thái ===
+//  Filter theo trạng thái 
 $filter_status = isset($_GET['status']) ? (int)$_GET['status'] : 0;
 $where_clause = '';
 if ($filter_status > 0) {
     $where_clause = "WHERE o.status_id = $filter_status";
 }
 
-// === Lấy danh sách đơn hàng ===
+//Lấy danh sách đơn hàng 
 $rows = mysqli_query(
     $conn,
     "SELECT o.*, u.full_name, os.status_name
@@ -180,10 +180,10 @@ $rows = mysqli_query(
      ORDER BY o.order_date DESC"
 );
 
-// === Lấy danh sách users ===
+//  Lấy danh sách users 
 $users = mysqli_query($conn, "SELECT user_id, full_name FROM users ORDER BY full_name");
 
-// === Lấy danh sách status ===
+//  Lấy danh sách status 
 $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status ORDER BY status_id");
 ?>
             <h1 class="page-title">Quản lý Đơn hàng</h1>
@@ -213,77 +213,17 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
                 </form>
             </div>
 
-            <div class="table-container">
+            <div class="table-container"
+                <?= ($action === 'new' || $editing) ? 'style="display:none;"' : '' ?>>
+                
                 <div style="margin-bottom: 20px;">
-                   <a class="btn-edit" href="index.php?page=orders&action=new" style="display: inline-block; padding: 10px 20px; background: #27ae60; color: #fff; text-decoration: none; border-radius: 5px;">
+                    <a class="btn-edit" href="index.php?page=orders&action=new"
+                        style="display: inline-block; padding: 10px 20px; background: #27ae60; color: #fff; text-decoration: none; border-radius: 5px;">
                         <i class="fas fa-plus"></i> Tạo đơn hàng mới
                     </a>
                 </div>
 
-                <?php if ($action === 'new' || $editing): ?>
-                    <div class="table-container" style="margin-bottom: 30px;">
-                        <h2><?php echo $editing ? 'Cập nhật đơn hàng' : 'Tạo đơn hàng mới'; ?></h2>
-                        <form method="post" action="orders.php?action=<?php echo $editing ? 'update&id=' . $editing['order_id'] : 'create'; ?>">
-                            <div class="form-group" style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Khách hàng</label>
-                                <select name="user_id" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" <?php echo $editing ? 'disabled' : ''; ?>>
-                                    <option value="">-- Chọn khách hàng --</option>
-                                    <?php if ($users): 
-                                        mysqli_data_seek($users, 0);
-                                        while ($u = mysqli_fetch_assoc($users)): ?>
-                                        <option value="<?php echo $u['user_id']; ?>"
-                                            <?php echo ($editing && $editing['user_id'] == $u['user_id']) ? 'selected' : ''; ?>>
-                                            <?php echo h($u['full_name']); ?>
-                                        </option>
-                                    <?php endwhile; endif; ?>
-                                </select>
-                            </div>
-
-                            <div class="form-group" style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tổng tiền</label>
-                                <input type="number" step="0.01" name="total_amount"
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
-                                       required
-                                       value="<?php echo $editing ? h($editing['total_amount']) : ''; ?>"
-                                       <?php echo $editing ? 'disabled' : ''; ?>>
-                            </div>
-
-                            <div class="form-group" style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Trạng thái</label>
-                                <select name="status_id" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                    <?php if ($statuses): 
-                                        mysqli_data_seek($statuses, 0);
-                                        while ($st = mysqli_fetch_assoc($statuses)): ?>
-                                        <option value="<?php echo $st['status_id']; ?>"
-                                            <?php echo ($editing && $editing['status_id'] == $st['status_id']) ? 'selected' : ''; ?>>
-                                            <?php echo h($st['status_name']); ?>
-                                        </option>
-                                    <?php endwhile; endif; ?>
-                                </select>
-                            </div>
-
-                            <?php if (!$editing): ?>
-                            <div class="form-group" style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Địa chỉ giao hàng</label>
-                                <input type="text" name="shipping_address"
-                                       class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
-                                       value="<?php echo $editing ? h($editing['shipping_address']) : ''; ?>">
-                            </div>
-                            <?php endif; ?>
-
-                            <div style="margin-top: 20px;">
-                                <button type="submit" class="btn-edit" style="padding: 10px 20px; background: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
-                                    <?php echo $editing ? 'Cập nhật' : 'Tạo mới'; ?>
-                                </button>
-                                <a class="btn-delete" href="index.php?page=orders" style="display: inline-block; padding: 10px 20px; background: #95a5a6; color: #fff; text-decoration: none; border-radius: 5px; margin-left: 10px;">
-                                    Hủy
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                <?php endif; ?>
-
-                <table class="admin-table">
+               <table class="admin-table">
                     <thead>
                         <tr>
                             <th>Mã đơn</th>
@@ -340,6 +280,81 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
                     </tbody>
                 </table>
             </div>
+           
+         <?php if ($action === 'new' || $editing): ?>
+
+            <!-- Overlay -->
+            <div style="
+                position:fixed;top:0;left:0;width:100%;height:100%;
+                background:rgba(0,0,0,0.45);z-index:900;">
+            </div>
+
+            <!-- POPUP -->
+            <div style="
+                position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+                background:white;width:500px;max-width:90%;
+                padding:25px;border-radius:12px;z-index:901;
+                box-shadow:0 10px 30px rgba(0,0,0,0.25);">
+
+                <h2 style="text-align:center;margin-bottom:20px;">
+                    <?= $editing ? "Cập nhật đơn hàng" : "Tạo đơn hàng mới" ?>
+                </h2>
+
+                <form method="POST"
+                    action="index.php?page=orders&action=<?= $editing ? 'update&id='.$editing['order_id'] : 'create' ?>">
+
+                    <label>Khách hàng</label>
+                    <select name="user_id"
+                        style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:12px;"
+                        <?= $editing ? "disabled" : "" ?>>
+                        <option value="">-- Chọn khách hàng --</option>
+                        <?php mysqli_data_seek($users,0); while($u=mysqli_fetch_assoc($users)): ?>
+                            <option value="<?= $u['user_id'] ?>"
+                                <?= $editing && $editing['user_id']==$u['user_id'] ? 'selected':'' ?>>
+                                <?= h($u['full_name']) ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+
+                    <label>Tổng tiền</label>
+                    <input type="number" name="total_amount"
+                        value="<?= $editing ? h($editing['total_amount']) : '' ?>"
+                        <?= $editing ? "disabled" : "" ?>
+                        style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:12px;">
+
+                    <label>Trạng thái</label>
+                    <select name="status_id"
+                        style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:12px;">
+                        <?php mysqli_data_seek($statuses,0); while($st=mysqli_fetch_assoc($statuses)): ?>
+                            <option value="<?= $st['status_id'] ?>"
+                                <?= $editing && $editing['status_id']==$st['status_id'] ? 'selected':'' ?>>
+                                <?= h($st['status_name']) ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+
+                    <?php if (!$editing): ?>
+                    <label>Địa chỉ giao hàng</label>
+                    <input type="text" name="shipping_address"
+                        style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:12px;">
+                    <?php endif; ?>
+
+                    <button type="submit"
+                        style="width:100%;padding:12px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-size:16px;">
+                        <?= $editing ? "Cập nhật" : "Tạo mới" ?>
+                    </button>
+
+                    <a href="index.php?page=orders"
+                        style="display:block;margin-top:15px;text-align:center;color:#888;text-decoration:none;">
+                        Hủy
+                    </a>
+
+                </form>
+            </div>
+
+            <?php endif; ?>
+
+
     <!-- Modal Chi tiết đơn hàng -->
     <div id="orderDetailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
         <div style="background: #fff; margin: 50px auto; max-width: 800px; padding: 30px; border-radius: 10px; position: relative;">

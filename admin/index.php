@@ -1,10 +1,12 @@
 <?php
+ob_start(); 
+
 session_name("admin_session");
 session_start();
 
 require_once __DIR__ . '/../config/config.php';
 
-/* ========= ROUTER ========= */
+/* ROUTER  */
 $page = $_GET['page'] ?? 'dashboard';
 
 $valid_pages = [
@@ -48,9 +50,7 @@ if (!isset($valid_pages[$page])) {
 <body>
 
 <?php if (!in_array($page, $auth_pages)): ?>
-    <?php ob_start(); ?>
     <?php include __DIR__ . "/layout/sidebar.php"; ?>
-    <?php ob_end_flush(); ?>
     <div class="main">
 <?php endif; ?>
 
@@ -62,5 +62,10 @@ if (!isset($valid_pages[$page])) {
     <?php include __DIR__ . "/layout/footer.php"; ?>
 <?php endif; ?>
 
+<?php
+if (ob_get_level()) {
+    ob_end_flush();
+}
+?>
 </body>
 </html>
