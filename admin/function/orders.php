@@ -1,14 +1,9 @@
 <?php
-session_name("admin_session");
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 require_once __DIR__ . '/../../config/config.php';
 
 if (empty($_SESSION['user']) || (int)$_SESSION['user']['role_id'] !== 1) {
-    header('Location: login-admin.php?return=' . urlencode('orders.php'));
+    header('Location: index.php?page=login-admin&return=' . urlencode('/fashionstore/admin/index.php?page=orders'));
     exit;
 }
 
@@ -28,7 +23,7 @@ if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     mysqli_query($conn, "INSERT INTO orders (user_id, total_amount, status_id, shipping_address, order_date)
                          VALUES ($user_id, $total, $status_id, '$shipping_address', NOW())");
-    header('Location: orders.php');
+    header('Location: index.php?page=orders');
     exit;
 }
 
@@ -41,14 +36,14 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
         $result = mysqli_query($conn, "UPDATE orders SET status_id=$status_id WHERE order_id=$id");
         if ($result) {
             // Thành công - redirect với thông báo
-            header('Location: orders.php?updated=1');
+            header('Location: index.php?page=orders&updated=1');
         } else {
             // Lỗi query
-            header('Location: orders.php?error=1');
+           header('Location: index.php?page=orders&error=1');
         }
     } else {
         // Status_id không hợp lệ
-        header('Location: orders.php?error=2');
+        header('Location: index.php?page=orders&error=2');
     }
     exit;
 }
@@ -56,13 +51,16 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
 //  Xóa đơn hàng 
 if ($action === 'delete' && $id > 0) {
     mysqli_query($conn, "DELETE FROM orders WHERE order_id=$id");
-    header('Location: orders.php');
+    header('Location: index.php?page=orders');
     exit;
 }
 
 
 // Xem chi tiết đơn hàng 
 if ($action === 'detail' && $id > 0) {
+    // Tắt layout khi trả về chi tiết
+    header("Content-Type: text/html; charset=UTF-8");
+    ob_clean(); // Xóa mọi output trước đó (nếu có)
 
     $r = mysqli_query($conn, "
         SELECT 
@@ -70,14 +68,14 @@ if ($action === 'detail' && $id > 0) {
             u.full_name, 
             u.email, 
             os.status_name,
-            p.promotion_name,
-            p.promotion_code
+            p.promotion_name
         FROM orders o 
         LEFT JOIN users u ON o.user_id = u.user_id 
         LEFT JOIN order_status os ON o.status_id = os.status_id
         LEFT JOIN promotions p ON o.promotion_id = p.promotion_id
         WHERE o.order_id = $id
     ");
+
 
     $order = $r ? mysqli_fetch_assoc($r) : null;
 
@@ -108,9 +106,7 @@ if ($action === 'detail' && $id > 0) {
         if ($discount > 0) {
             echo '<p><strong>Giảm giá:</strong> -' . number_format($discount, 0, ',', '.') . 'đ</p>';
 
-            if (!empty($order['promotion_code'])) {
-                echo '<p><strong>Mã khuyến mãi:</strong> ' . h($order['promotion_code']) . '</p>';
-            } elseif (!empty($order['promotion_name'])) {
+           if (!empty($order['promotion_name'])) {
                 echo '<p><strong>Khuyến mãi:</strong> ' . h($order['promotion_name']) . '</p>';
             }
         }
@@ -190,8 +186,6 @@ $users = mysqli_query($conn, "SELECT user_id, full_name FROM users ORDER BY full
 // === Lấy danh sách status ===
 $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status ORDER BY status_id");
 ?>
-<?php include "../layout/head.php"; ?>
-<?php include "../layout/sidebar.php"; ?>
             <h1 class="page-title">Quản lý Đơn hàng</h1>
             
             <?php if (isset($_GET['updated']) && $_GET['updated'] == 1): ?>
@@ -203,7 +197,8 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
             <?php endif; ?>
 
             <div class="filter-section" style="margin-bottom: 20px;">
-                <form method="get" action="orders.php" style="display: inline-block;">
+                <form method="get" action="index.php" style="display:inline-block;">
+                    <input type="hidden" name="page" value="orders">
                     <select name="status" class="filter-select" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fff; cursor: pointer;" onchange="this.form.submit()">
                         <option value="0" <?php echo $filter_status == 0 ? 'selected' : ''; ?>>Tất cả đơn hàng</option>
                         <?php 
@@ -220,7 +215,7 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
 
             <div class="table-container">
                 <div style="margin-bottom: 20px;">
-                    <a class="btn-edit" href="orders.php?action=new" style="display: inline-block; padding: 10px 20px; background: #27ae60; color: #fff; text-decoration: none; border-radius: 5px;">
+                   <a class="btn-edit" href="index.php?page=orders&action=new" style="display: inline-block; padding: 10px 20px; background: #27ae60; color: #fff; text-decoration: none; border-radius: 5px;">
                         <i class="fas fa-plus"></i> Tạo đơn hàng mới
                     </a>
                 </div>
@@ -280,7 +275,7 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
                                 <button type="submit" class="btn-edit" style="padding: 10px 20px; background: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
                                     <?php echo $editing ? 'Cập nhật' : 'Tạo mới'; ?>
                                 </button>
-                                <a class="btn-delete" href="orders.php" style="display: inline-block; padding: 10px 20px; background: #95a5a6; color: #fff; text-decoration: none; border-radius: 5px; margin-left: 10px;">
+                                <a class="btn-delete" href="index.php?page=orders" style="display: inline-block; padding: 10px 20px; background: #95a5a6; color: #fff; text-decoration: none; border-radius: 5px; margin-left: 10px;">
                                     Hủy
                                 </a>
                             </div>
@@ -345,7 +340,6 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
                     </tbody>
                 </table>
             </div>
-  <?php include "../layout/footer.php"; ?>
     <!-- Modal Chi tiết đơn hàng -->
     <div id="orderDetailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
         <div style="background: #fff; margin: 50px auto; max-width: 800px; padding: 30px; border-radius: 10px; position: relative;">
@@ -360,7 +354,7 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
         <div style="background: #fff; margin: 100px auto; max-width: 500px; padding: 30px; border-radius: 10px; position: relative;">
             <span onclick="closeUpdateStatus()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #999;">&times;</span>
             <h2 style="margin-bottom: 20px;">Cập nhật trạng thái đơn hàng</h2>
-            <form id="updateStatusForm" method="post" action="orders.php">
+            <form id="updateStatusForm" method="post" action="index.php?page=orders">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" id="update_order_id" name="id" value="">
                 <div style="margin-bottom: 20px;">
@@ -397,7 +391,7 @@ $statuses = mysqli_query($conn, "SELECT status_id, status_name FROM order_status
     <script>
         function viewOrderDetail(orderId) {
             // Tạo request để lấy chi tiết đơn hàng
-            fetch('orders.php?action=detail&id=' + orderId)
+            fetch('index.php?page=orders&action=detail&id=' + orderId)
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById('orderDetailContent').innerHTML = html;

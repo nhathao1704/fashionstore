@@ -1,14 +1,9 @@
 <?php
-session_name("admin_session");
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 require_once __DIR__ . '/../../config/config.php';
 
 if (empty($_SESSION['user']) || (int)$_SESSION['user']['role_id'] !== 1) {
-    header('Location: login-admin.php?return=' . urlencode('users.php'));
+     header('Location: login-admin.php?return=' . urlencode('index.php?page=users'));
     exit;
 }
 
@@ -61,13 +56,13 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
         mysqli_query($conn, "UPDATE users SET password='$pwd' WHERE user_id=$id");
     }
 
-    header('Location: users.php'); exit;
+    header('Location: index.php?page=users'); exit;
 }
 
 /* xoa */
 if ($action === 'delete' && $id > 0) {
     mysqli_query($conn, "DELETE FROM users WHERE user_id=$id");
-    header('Location: users.php'); exit;
+    header('Location: index.php?page=users'); exit;
 }
 
 /* sua */
@@ -80,14 +75,12 @@ if ($action === 'edit' && $id > 0) {
 /* danh sach users*/
 $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
 ?>
-<?php include "../layout/head.php"; ?>
-<?php include "../layout/sidebar.php"; ?>
         <h1 class="page-title">Quản lý Người dùng</h1>
 
         <div class="table-container">
 
             <div style="margin-bottom:20px;">
-                <a class="btn-edit" href="users.php?action=new" 
+                <a class="btn-edit"  href="index.php?page=users&action=new"
                    style="display:inline-block;padding:10px 20px;background:#27ae60;color:#fff;text-decoration:none;border-radius:5px;">
                     <i class="fas fa-plus"></i> Thêm người dùng
                 </a>
@@ -97,7 +90,8 @@ $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
                 <div class="table-container" style="margin-bottom:30px;">
                     <h2><?php echo $editing ? 'Cập nhật User' : 'Tạo User mới'; ?></h2>
 
-                    <form method="post" action="users.php?action=<?php echo $editing ? 'update&id=' . $editing['user_id'] : 'create'; ?>">
+                    <form method="post" action="index.php?page=users&action=<?php echo $editing ? 'update&id=' . $editing['user_id'] : 'create'; ?>">
+
 
                         <div class="form-group">
                             <label>Họ tên</label>
@@ -147,7 +141,7 @@ $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
                             <?php echo $editing ? 'Cập nhật' : 'Tạo mới'; ?>
                         </button>
 
-                        <a class="btn-delete" href="users.php"
+                        <a class="btn-delete" href="index.php?page=users"
                            style="padding:10px 20px;background:#95a5a6;color:#fff;text-decoration:none;border-radius:5px;margin-left:10px;">
                             Hủy
                         </a>
@@ -188,12 +182,12 @@ $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
                             <td><?php echo $r['created_at']; ?></td>
 
                             <td>
-                                <a href="users.php?action=edit&id=<?php echo $r['user_id']; ?>" 
+                                <a href="index.php?page=users&action=edit&id=<?php echo $r['user_id']; ?>" 
                                    class="btn-edit" style="padding:6px 12px;background:#3498db;color:#fff;border-radius:4px;text-decoration:none;">
                                     <i class="fas fa-edit"></i> Sửa
                                 </a>
 
-                                <a href="users.php?action=delete&id=<?php echo $r['user_id']; ?>"
+                                <a href="index.php?page=users&action=delete&id=<?php echo $r['user_id']; ?>"
                                    onclick="return confirm('Xóa user này?')"
                                    class="btn-delete"
                                    style="padding:6px 12px;background:#e74c3c;color:#fff;border-radius:4px;text-decoration:none;">
@@ -208,7 +202,7 @@ $rows = mysqli_query($conn, "SELECT * FROM users ORDER BY created_at DESC");
             </table>
 
         </div>
-<?php include "../layout/footer.php"; ?>
+
 
 </body>
 </html>

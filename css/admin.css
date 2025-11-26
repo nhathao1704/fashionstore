@@ -677,3 +677,7 @@ header {
 .admin-user:hover .admin-dropdown {
     display: block;
 }
+
+.hide-content {
+    display: none !important;
+}

@@ -20,7 +20,7 @@ $user_id = !empty($_SESSION['user']) ? (int)$_SESSION['user']['user_id'] : (int)
 
 
 
-// Xử lý cập nhật số lượng
+// Cập nhật số lượng
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_qty'])) {
     $item_id = (int)$_POST['cart_item_id'];
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_qty'])) {
 
 
 
-// Xử lý xóa sản phẩm
+// Xóa sản phẩm
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_item'])) {
     $item_id = (int)$_POST['cart_item_id'];
@@ -46,8 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_item'])) {
     exit;
 }
 
-
-//   Lấy thông tin giỏ hàng
+// Lấy thông tin giỏ hàng
 
 $cart = mysqli_fetch_assoc(mysqli_query($conn, 
     "SELECT cart_id FROM Carts WHERE user_id = {$user_id} LIMIT 1"
@@ -58,11 +57,18 @@ $total_amount = 0;
 $total_items = 0;
 
 if ($cart) {
+
     $sql = "
-        SELECT ci.cart_item_id, ci.quantity, ci.price_at_added,
-             p.product_id, p.product_name,
-             v.size, v.stock_quantity,
-             COALESCE(pi.image_url, 'uploads/no-image.jpg') as image_url
+        SELECT 
+            ci.cart_item_id, 
+            ci.quantity, 
+            ci.price_at_added,
+            ci.variant_id,         
+            p.product_id, 
+            p.product_name,
+            v.size, 
+            v.stock_quantity,
+            COALESCE(pi.image_url, 'uploads/no-image.jpg') as image_url
         FROM CartItems ci
         JOIN ProductVariants v ON ci.variant_id = v.variant_id
         JOIN Products p ON v.product_id = p.product_id
@@ -86,7 +92,7 @@ if ($cart) {
 
 
 
-//  Xử lý bấm nút THANH TOÁN
+// Xử lý nút THANH TOÁN
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && $_POST['action'] === 'checkout') {
 
@@ -100,10 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && $_POST[
     ];
 
     foreach ($items as $it) {
+
+       
         $checkout_payload['items'][] = [
             'product_id' => $it['product_id'],
             'product_name' => $it['product_name'],
             'variant' => $it['size'],
+            'variant_id' => $it['variant_id'],    
             'quantity' => (int)$it['quantity'],
             'price' => (float)$it['price_at_added'],
             'image' => $it['image_url']
@@ -116,11 +125,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && $_POST[
     exit;
 }
 
+
 ob_start();
 ?>
 
 <!-- HTML HIỂN THỊ GIỎ HÀNG-->
-
 <main class="cart-page">
     <div class="cart-container">
         <h1>Giỏ hàng của bạn</h1>
@@ -138,13 +147,11 @@ ob_start();
                 <?php foreach ($items as $item): ?>
                 <div class="cart-item">
 
-                    <!-- Hình ảnh -->
                     <div class="item-image">
                         <img src="<?= htmlspecialchars($item['image_url']) ?>" 
                              alt="<?= htmlspecialchars($item['product_name']) ?>">
                     </div>
                                 
-                    <!-- Chi tiết sản phẩm -->
                     <div class="item-details">
                         <h3>
                             <a href="index.php?page=product_detail&id=<?= $item['product_id'] ?>">
@@ -155,14 +162,11 @@ ob_start();
                         <p class="price"><?= number_format($item['price_at_added'], 0, ",", ".") ?>đ</p>
                     </div>
                                 
-                    <!-- Số lượng -->
                     <div class="item-quantity">
                         <form method="post">
                             <div class="quantity-control">
                                 <button type="submit" name="update_qty" class="qty-btn minus"
-                                        onclick="this.parentNode.querySelector('input').stepDown()">
-                                    -
-                                </button>
+                                        onclick="this.parentNode.querySelector('input').stepDown()">-</button>
 
                                 <input type="number"
                                     name="quantity"
@@ -172,15 +176,11 @@ ob_start();
                                     class="qty-input">
 
                                 <button type="submit" name="update_qty" class="qty-btn plus"
-                                        onclick="this.parentNode.querySelector('input').stepUp()">
-                                    +
-                                </button>
+                                        onclick="this.parentNode.querySelector('input').stepUp()">+</button>
                             </div>
-
                             <input type="hidden" name="cart_item_id" value="<?= $item['cart_item_id'] ?>">
                         </form>
 
-                        <!-- nút xóa -->
                         <form method="post">
                             <input type="hidden" name="cart_item_id" value="<?= $item['cart_item_id'] ?>">
                             <button type="submit" name="remove_item" class="remove-item">
@@ -189,7 +189,6 @@ ob_start();
                         </form>
                     </div>
                                 
-                    <!-- Thành tiền -->
                     <div class="item-total">
                         <?= number_format($item['price_at_added'] * $item['quantity'], 0, ",", ".") ?>đ
                     </div>
@@ -198,7 +197,6 @@ ob_start();
                 <?php endforeach; ?>
             </div>
                     
-            <!-- Tóm tắt giỏ hàng -->
             <div class="cart-summary">
                 <h3>Tổng giỏ hàng</h3>
                 <div class="summary-row"><span>Tổng sản phẩm:</span><span><?= $total_items ?></span></div>
@@ -228,6 +226,7 @@ ob_start();
     </div>
 </main>
 
-<?php $content = ob_get_clean(); 
+<?php 
+$content = ob_get_clean(); 
 require __DIR__ . '/../../includes/layouts/' . $layout . '.php'; 
 exit;

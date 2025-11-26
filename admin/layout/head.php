@@ -9,7 +9,6 @@ $page_title = $page_title ?? 'FashionStore - Vogue Lane Clothing';
 
 <!-- CSS Cơ bản -->
 <?php
-    // Cache-bust style.css using file modification time so updates appear immediately in browser
     $stylePath = __DIR__ . '/../../css/admin.css';
     $styleVersion = file_exists($stylePath) ? filemtime($stylePath) : time();
 ?>
@@ -24,3 +23,44 @@ $page_title = $page_title ?? 'FashionStore - Vogue Lane Clothing';
         <link rel="stylesheet" href="/fashionstore/<?php echo ltrim($css, '/'); ?>">
     <?php endforeach; ?>
 <?php endif; ?>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.querySelector(".searchbar input");
+    const btn   = document.querySelector(".searchbtn");
+
+    console.log("JS Loaded!", input, btn);
+
+    if (!input || !btn) {
+        console.log("Không tìm thấy input hoặc button");
+        return;
+    }
+
+    function doSearch() {
+        const kw = input.value.trim();
+        console.log("Search keyword =", kw);
+
+        if (kw === "") {
+            alert("Vui lòng nhập từ khóa!");
+            return;
+        }
+
+        // === Gọi router search ===
+        window.location.href = `index.php?page=search&keyword=${encodeURIComponent(kw)}`;
+    }
+
+    // Enter để tìm kiếm
+    input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            console.log("Press Enter");
+            doSearch();
+        }
+    });
+
+    // Click icon để tìm
+    btn.addEventListener("click", () => {
+        console.log("Click button");
+        doSearch();
+    });
+});
+</script>
+

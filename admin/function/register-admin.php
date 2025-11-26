@@ -1,9 +1,4 @@
 ﻿<?php
-session_name("admin_session");
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 require_once __DIR__ . '/../../config/config.php';
 
@@ -31,25 +26,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // VALIDATE 
     if ($full_name === '' || $email === '' || $password === '' || $confirm === '') {
         set_flash('Vui lòng nhập đầy đủ thông tin.', 'warning');
-        header('Location: register-admin.php');
+        header('Location: index.php?page=register-admin');
         exit;
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         set_flash('Email không hợp lệ.', 'warning');
-        header('Location: register-admin.php');
+        header('Location: index.php?page=register-admin');
         exit;
     }
 
     if ($password !== $confirm) {
         set_flash('Mật khẩu nhập lại không khớp.', 'warning');
-        header('Location: register-admin.php');
+        header('Location: index.php?page=register-admin');
         exit;
     }
 
     if (strlen($password) < 6) {
         set_flash('Mật khẩu phải ít nhất 6 ký tự.', 'warning');
-        header('Location: register-admin.php');
+        header('Location: index.php?page=register-admin');
         exit;
     }
 
@@ -62,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (mysqli_stmt_num_rows($stmt) > 0) {
         mysqli_stmt_close($stmt);
         set_flash('Email đã tồn tại.', 'warning');
-        header('Location: register-admin.php');
+        header('Location: index.php?page=register-admin');
         exit;
     }
     mysqli_stmt_close($stmt);
@@ -83,12 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($ok) {
         set_flash('Tạo tài khoản admin thành công! Vui lòng đăng nhập.', 'success');
-        header('Location: login-admin.php');
+        header('Location: index.php?page=login-admin');
         exit;
     }
 
     set_flash('Lỗi hệ thống! Không thể tạo tài khoản.', 'danger');
-    header('Location: register-admin.php');
+    header('Location: index.php?page=register-admin');
     exit;
 }
 
@@ -170,7 +165,7 @@ $flash = take_flash();
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="register-admin.php" novalidate>
+           <form method="post" action="index.php?page=register-admin" novalidate>
                 <div class="form-group">
                     <label for="full_name">Họ tên</label>
                     <input type="text" id="full_name" name="full_name" placeholder="Nhập họ tên" required>
@@ -196,7 +191,7 @@ $flash = take_flash();
 
             <div class="auth-links" style="margin-top: 18px; text-align:center;">
                 <span>Đã có tài khoản?</span>
-                <a href="login-admin.php">Đăng nhập admin</a>
+                <a href="index.php?page=login-admin">Đăng nhập admin</a>
             </div>
         </div>
     </div>

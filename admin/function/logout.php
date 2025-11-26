@@ -25,5 +25,5 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Chuyển về trang login admin
-header("Location: login-admin.php");
+header("Location: index.php?page=login-admin");
 exit;

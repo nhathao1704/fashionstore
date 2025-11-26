@@ -1,10 +1,4 @@
 <?php
-session_name("admin_session");
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 require_once __DIR__ . '/../../config/config.php';
 
 /*  MESSAGE  */
@@ -37,7 +31,7 @@ function sanitize_return($return)
 
 function redirect_login($return = '')
 {
-    $url = 'login-admin.php';
+     $url = 'index.php?page=login-admin';
     if ($return !== '') $url .= '?return=' . urlencode($return);
     header('Location: ' . $url);
     exit;
@@ -109,12 +103,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     set_flash('Đăng nhập thành công!', 'success');
 
     /*  XỬ LÝ REDIRECT */
-    $redirect_to = 'dashboard.php';
+    $redirect_to = 'index.php?page=dashboard';
 
     if ($return_to !== '') {
         $redirect_to = basename($return_to);
         if (!file_exists(__DIR__ . '/' . $redirect_to)) {
-            $redirect_to = 'dashboard.php';
+           $redirect_to = 'index.php?page=dashboard';
         }
     }
 
@@ -124,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 /*  NẾU ĐÃ LOGIN RỒI → VÀO DASHBOARD */
 if (!empty($_SESSION['user']) && in_array($_SESSION['user']['role_id'], [1, 2])) {
-    header('Location: dashboard.php');
+    header('Location: index.php?page=dashboard');
     exit;
 }
 
@@ -188,7 +182,7 @@ $flash = take_flash();
 
         <div class="auth-links">
             <span>Chưa có tài khoản?</span>
-            <a href="register-admin.php">Đăng ký Admin</a>
+            <a href="index.php?page=register-admin">Đăng ký Admin</a>
         </div>
     </div>
 </div>

@@ -24,9 +24,9 @@ $result = mysqli_stmt_get_result($stmt);
 $user_info = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
-// ======================
+
 // LẤY DANH SÁCH KHUYẾN MÃI ĐANG HOẠT ĐỘNG
-// ======================
+
 $sqlListPromo = "
     SELECT *
     FROM promotions

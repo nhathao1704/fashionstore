@@ -1,20 +1,11 @@
 <?php
-session_name("admin_session");
-
-// --- Session ---
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 require_once __DIR__ . '/../../config/config.php';
 
-// --- Chỉ admin mới được vào ---
 if (empty($_SESSION['user']) || (int)$_SESSION['user']['role_id'] !== 1) {
     header('Location: login-admin.php?return=' . urlencode('dashboard.php'));
     exit;
 }
 
-// --- Hàm helper ---
 function h($s) {
     return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 }
@@ -23,9 +14,7 @@ function format_money($value) {
     return number_format((float)$value, 0, ',', '.') . 'đ';
 }
 
-
-//  TRUY VẤN THỐNG KÊ
-
+// THỐNG KÊ
 $stats = [
     'orders_total'     => 0,
     'orders_completed' => 0,
@@ -33,25 +22,20 @@ $stats = [
     'customers_total'  => 0,
 ];
 
-// Tổng đơn hàng
 $q1 = mysqli_query($conn, "SELECT COUNT(*) AS c FROM orders");
 $stats['orders_total'] = (int)mysqli_fetch_assoc($q1)['c'];
 
-// Đơn hoàn thành
 $q2 = mysqli_query($conn, "SELECT COUNT(*) AS c FROM orders WHERE status_id = 4");
 $stats['orders_completed'] = (int)mysqli_fetch_assoc($q2)['c'];
 
-// Tổng sản phẩm
 $q3 = mysqli_query($conn, "SELECT COUNT(*) AS c FROM products");
 $stats['products_total'] = (int)mysqli_fetch_assoc($q3)['c'];
 
-// Khách hàng (trừ admin)
 $q4 = mysqli_query($conn, "SELECT COUNT(*) AS c FROM users WHERE role_id <> 1");
 $stats['customers_total'] = (int)mysqli_fetch_assoc($q4)['c'];
 
 
-
-//  ĐƠN HÀNG GẦN ĐÂY
+// ĐƠN HÀNG GẦN ĐÂY
 $recent_orders = [];
 
 $sql_recent_orders = "
@@ -73,47 +57,29 @@ while ($row = mysqli_fetch_assoc($res)) {
     $recent_orders[] = $row;
 }
 
-function order_status_meta($status)
-{
-    if (empty($status)) {
-        return ['class' => 'order-status pending', 'label' => 'Chưa xác định'];
-    }
+function order_status_meta($status) {
+    $lower = mb_strtolower($status ?? '', 'UTF-8');
 
-    $status_lower = mb_strtolower(trim($status), 'UTF-8');
-
-    if (str_contains($status_lower, 'hoàn thành') || str_contains($status_lower, 'completed')) {
+    if (str_contains($lower, 'hoàn thành') || str_contains($lower, 'completed'))
         return ['class' => 'order-status done', 'label' => $status];
-    }
 
-    if (str_contains($status_lower, 'hủy') || str_contains($status_lower, 'cancel')) {
+    if (str_contains($lower, 'hủy') || str_contains($lower, 'cancel'))
         return ['class' => 'order-status cancel', 'label' => $status];
-    }
 
-    if (str_contains($status_lower, 'giao hàng') || str_contains($status_lower, 'ship')) {
-        return ['class' => 'order-status done', 'label' => $status];
-    }
-
-    if (str_contains($status_lower, 'xử lý') || str_contains($status_lower, 'processing')) {
-        return ['class' => 'order-status pending', 'label' => $status];
-    }
-
-    if (str_contains($status_lower, 'xác nhận') || str_contains($status_lower, 'pending')) {
-        return ['class' => 'order-status pending', 'label' => $status];
-    }
+    if (str_contains($lower, 'giao hàng') || str_contains($lower, 'ship'))
+        return ['class' => 'order-status ship', 'label' => $status];
 
     return ['class' => 'order-status pending', 'label' => $status];
 }
 
 ?>
-<?php include "../layout/head.php"; ?>
-<?php include "../layout/sidebar.php"; ?>
 
+<!-- HTML Dashboard bắt đầu từ đây, KHÔNG include layout -->
 <h1 class="page-title">Tổng quan hệ thống</h1>
 
 <section id="dashboard">
-    <!-- BOX THỐNG KÊ -->
-    <div class="box-container">
 
+    <div class="box-container">
         <div class="box box1">
             <div class="text">
                 <h2 class="topic-heading"><?= h($stats['orders_total']) ?></h2>
@@ -145,48 +111,34 @@ function order_status_meta($status)
             </div>
             <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210185029/13.png">
         </div>
-
     </div>
 
-    <!-- BẢNG ĐƠN GẦN ĐÂY -->
     <div class="report-container">
         <div class="report-header">
-            <h1 class="recent-Articles">Đơn hàng gần đây</h1>
-            <button class="view" onclick="window.location.href='orders.php'">Xem tất cả</button>
+            <h1>Đơn hàng gần đây</h1>
+            <button class="view" onclick="window.location.href='index.php?page=orders'">Xem tất cả</button>
         </div>
 
         <div class="report-body">
             <div class="report-topic-heading">
-                <h3 class="t-op">Mã đơn</h3>
-                <h3 class="t-op">Khách hàng</h3>
-                <h3 class="t-op">Tổng tiền</h3>
-                <h3 class="t-op">Trạng thái</h3>
+                <h3>Mã đơn</h3>
+                <h3>Khách hàng</h3>
+                <h3>Tổng tiền</h3>
+                <h3>Trạng thái</h3>
             </div>
 
             <div class="items">
-                <?php if ($recent_orders): ?>
-                    <?php foreach ($recent_orders as $order): ?>
-                        <?php $m = order_status_meta($order['status']); ?>
-                        <div class="item1">
-                            <h3 class="t-op-nextlvl"><?= h($order['id']) ?></h3>
-                            <h3 class="t-op-nextlvl"><?= h($order['customer_name']) ?></h3>
-                            <h3 class="t-op-nextlvl"><?= format_money($order['total_amount']) ?></h3>
-                            <h3 class="t-op-nextlvl">
-                                <span class="<?= h($m['class']) ?>"><?= h($m['label']) ?></span>
-                            </h3>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
+                <?php foreach ($recent_orders as $order): ?>
+                    <?php $m = order_status_meta($order['status']); ?>
                     <div class="item1">
-                        <h3 class="t-op-nextlvl" style="grid-column: span 4;">Chưa có đơn hàng nào</h3>
+                        <h3><?= h($order['id']) ?></h3>
+                        <h3><?= h($order['customer_name']) ?></h3>
+                        <h3><?= format_money($order['total_amount']) ?></h3>
+                        <h3><span class="<?= $m['class'] ?>"><?= h($m['label']) ?></span></h3>
                     </div>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </div>
-
         </div>
     </div>
-</section>
 
-<?php include "../layout/footer.php"; ?>
-</body>
-</html>
+</section>

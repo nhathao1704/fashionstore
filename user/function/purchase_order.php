@@ -4,9 +4,8 @@ require_once __DIR__ . '/../../config/config.php';
 $layout = 'main';
 $page_title = 'Xác nhận đơn hàng - FashionStore';
 
-// =============================
-// HỦY ĐƠN HÀNG
-// =============================
+/*HỦY ĐƠN HÀNG*/
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cancel_order') {
 
     if (empty($_SESSION['user'])) {
@@ -45,9 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cance
 
 
 
-// =============================
-// XEM DANH SÁCH ĐƠN HÀNG
-// =============================
+/*  XEM DANH SÁCH ĐƠN HÀNG */
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if (empty($_SESSION['user'])) {
@@ -78,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     ob_start();
     ?>
+
 <main style="padding:120px 20px;">
     <div class="orders-container">
         <h1>Đơn hàng của tôi</h1>
@@ -92,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 <?php foreach ($orders as $order): ?>
 
                     <?php
-                    // Mapping status → class màu
                     switch ($order['status_id']) {
                         case 3:
                         case 4:
@@ -185,8 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 
 
-// TẠO ĐƠN HÀNG MỚI
-
+/*TẠO ĐƠN HÀNG*/
 
 if (empty($_SESSION['user'])) {
     echo "<p>Bạn cần đăng nhập.</p>";
@@ -195,8 +192,6 @@ if (empty($_SESSION['user'])) {
 
 $user_id = $_SESSION['user']['user_id'];
 
-
-// Validate form
 $required = ['full_name', 'phone', 'city', 'district', 'address'];
 $data = [];
 
@@ -211,26 +206,21 @@ foreach ($required as $f) {
 
 $data['note'] = trim($_POST['note'] ?? '');
 
-
-// Lấy giỏ
 $checkout = $_SESSION['checkout_order'] ?? null;
 if (empty($checkout['items'])) {
     echo "<p>Giỏ hàng rỗng hoặc không hợp lệ.</p>";
     exit;
 }
 
-
-// 🔥 LẤY THÔNG TIN GIẢM GIÁ
-$promotion_id   = $_POST['promotion_id']   ?? null;
+$promotion_id    = $_POST['promotion_id']   ?? null;
 $discount_amount = $_POST['discount_amount'] ?? 0;
 $discount_amount = (int)$discount_amount;
 
-// 🔥 Tổng tiền cuối cùng sau giảm
 $final_total = $checkout['total_amount'] - $discount_amount;
 if ($final_total < 0) $final_total = 0;
 
+/*  Tạo mã đơn hàng ODRxxx  */
 
-// Tạo mã đơn hàng ODRxxxxx
 $res = mysqli_query($conn, "
     SELECT id_order 
     FROM orders 
@@ -248,13 +238,10 @@ if (!$row) {
     $new_id_order = "ODR" . str_pad($nextNumber, 5, "0", STR_PAD_LEFT);
 }
 
-
-
-
-// INSERT ĐƠN HÀNG
-// 
 $shipping_address = $data['address'] . ', ' . $data['district'] . ', ' . $data['city'];
 $items_json = json_encode($checkout['items'], JSON_UNESCAPED_UNICODE);
+
+/*  INSERT ORDER  */
 
 $stmt = mysqli_prepare($conn, "
     INSERT INTO orders (user_id, status_id, order_date, total_amount, discount_amount, promotion_id, shipping_address, items, id_order)
@@ -273,22 +260,47 @@ mysqli_stmt_bind_param(
     $new_id_order
 );
 
-
 mysqli_stmt_execute($stmt);
 $order_id = mysqli_insert_id($conn);
 mysqli_stmt_close($stmt);
 
+/* INSERT ORDERDETAILS */
 
+if ($order_id && !empty($checkout['items'])) {
 
+    $stmtItem = mysqli_prepare($conn, "
+        INSERT INTO orderdetails (order_id, variant_id, quantity, price_at_purchase)
+        VALUES (?, ?, ?, ?)
+    ");
 
-// XÓA SESSION GIỎ + KHUYẾN MÃI
+    foreach ($checkout['items'] as $item) {
+        $variant_id = isset($item['variant_id']) ? (int)$item['variant_id'] : 0;
+        $qty        = isset($item['quantity'])   ? (int)$item['quantity'] : 0;
+        $price_buy  = isset($item['price'])      ? (float)$item['price']  : 0;
+
+        if ($variant_id > 0 && $qty > 0) {
+            mysqli_stmt_bind_param(
+                $stmtItem,
+                "iiid",
+                $order_id,
+                $variant_id,
+                $qty,
+                $price_buy
+            );
+            mysqli_stmt_execute($stmtItem);
+        }
+    }
+
+    mysqli_stmt_close($stmtItem);
+}
+
+/*  CLEAR CART */
 
 unset($_SESSION['checkout_order']);
 unset($_SESSION['applied_promo']);
 
+/*  VIEW  */
 
-
-// VIEW XÁC NHẬN
 ob_start();
 ?>
 <main style="padding:120px 20px;">
@@ -370,4 +382,3 @@ ob_start();
 $content = ob_get_clean();
 require __DIR__ . '/../../includes/layouts/' . $layout . '.php';
 exit;
-
