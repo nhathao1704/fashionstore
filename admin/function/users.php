@@ -73,9 +73,35 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
  */
 if ($action === 'delete' && $id > 0) {
 
-    mysqli_query($conn, "DELETE FROM users WHERE user_id=$id");
+      //  Xóa chi tiết đơn hàng (orderdetails)
+    mysqli_query($conn, "
+        DELETE od FROM orderdetails od
+        INNER JOIN orders o ON od.order_id = o.order_id
+        WHERE o.user_id = $id
+    ");
+
+    // Xóa đơn hàng
+    mysqli_query($conn, "DELETE FROM orders WHERE user_id = $id");
+
+    // Xóa cartitems (vì nó FK tới carts)
+    mysqli_query($conn, "
+        DELETE ci FROM cartitems ci
+        INNER JOIN carts c ON ci.cart_id = c.cart_id
+        WHERE c.user_id = $id
+    ");
+
+    // Xóa carts
+    mysqli_query($conn, "DELETE FROM carts WHERE user_id = $id");
+
+    //  Xóa feedback
+    mysqli_query($conn, "DELETE FROM feedbacks WHERE user_id = $id");
+
+    //  Cuối cùng xoá user
+    mysqli_query($conn, "DELETE FROM users WHERE user_id = $id");
+     
     header('Location: index.php?page=users');
     exit;
+
 }
 
 /*  EDIT MODE  */

@@ -5,28 +5,24 @@ $layout = 'main';
 $page_title = 'Sản phẩm - FashionStore';
 
 
-//  XỬ LÝ THÊM VÀO GIỎ HÀNG
-
+// ====================== XỬ LÝ THÊM VÀO GIỎ HÀNG ========================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['add_cart_product'])) {
 
-    // Kiểm tra đăng nhập
     if (empty($_SESSION['user']) && empty($_SESSION['user_id'])) {
         $returnUrl = urlencode("/fashionstore/index.php?page=product");
         header("Location: /fashionstore/index.php?page=login&return={$returnUrl}");
         exit;
     }
 
-    // Lấy user ID
     $user_id = !empty($_SESSION['user'])
         ? (int)$_SESSION['user']['user_id']
         : (int)$_SESSION['user_id'];
 
-    $product_id = (int)$_POST['add_cart_product'];
-    $variant_id = (int)$_POST['variant_id'];
-    $quantity   = 1;
+    $product_id   = (int)$_POST['add_cart_product'];
+    $variant_id   = (int)$_POST['variant_id'];
+    $quantity     = 1;
     $product_name = $_POST['product_name'] ?? 'Sản phẩm';
 
-    // Lấy dữ liệu biến thể
     $var = mysqli_fetch_assoc(
         mysqli_query($conn, "SELECT price, stock_quantity FROM ProductVariants WHERE variant_id={$variant_id} LIMIT 1")
     );
@@ -43,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['add_cart_product']))
         exit;
     }
 
-    // Tạo giỏ hàng nếu chưa có
+    // Tạo giỏ
     $cart = mysqli_fetch_assoc(mysqli_query($conn,
         "SELECT cart_id FROM Carts WHERE user_id={$user_id} LIMIT 1"
     ));
@@ -55,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['add_cart_product']))
         $cart_id = $cart['cart_id'];
     }
 
-    // Kiểm tra item đã có chưa
     $item = mysqli_fetch_assoc(mysqli_query($conn,
         "SELECT cart_item_id, quantity FROM CartItems 
          WHERE cart_id={$cart_id} AND variant_id={$variant_id} LIMIT 1"
@@ -80,9 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['add_cart_product']))
 
 
 
-
-// LẤY TÊN DANH MỤC
-
+// ====================== LẤY TÊN DANH MỤC ========================
 $categoryName = '';
 if (!empty($_GET['cat'])) {
     $catId = (int)$_GET['cat'];
@@ -91,7 +84,9 @@ if (!empty($_GET['cat'])) {
     if ($catRow) $categoryName = $catRow['category_name'];
 }
 
-//  TẠO FILTER SQL
+
+
+// ====================== FILTER SQL ========================
 $where = "1";
 
 if (!empty($_GET['cat'])) {
@@ -106,16 +101,15 @@ if (!empty($_GET['search'])) {
 
 
 
-
-//  LẤY SẢN PHẨM
-
+// ====================== LẤY SẢN PHẨM + ĐẾM SỐ SIZE ========================
 $sql = "
     SELECT 
         p.product_id,
         p.product_name,
         (SELECT image_url FROM ProductImages WHERE product_id = p.product_id LIMIT 1) AS image_url,
         (SELECT MIN(price) FROM ProductVariants WHERE product_id = p.product_id) AS price,
-        (SELECT MIN(variant_id) FROM ProductVariants WHERE product_id = p.product_id) AS variant_id
+        (SELECT MIN(variant_id) FROM ProductVariants WHERE product_id = p.product_id) AS variant_id,
+        (SELECT COUNT(*) FROM ProductVariants WHERE product_id = p.product_id) AS variant_count
     FROM Products p
     WHERE $where
     ORDER BY p.product_id DESC
@@ -125,8 +119,7 @@ $result = mysqli_query($conn, $sql);
 
 
 
-// FLASH MESSAGE
-
+// ====================== FLASH MESSAGE ========================
 ?>
 <style>
 .alert {
@@ -153,8 +146,7 @@ $result = mysqli_query($conn, $sql);
 
 
 
-
-<!--  HIỂN THỊ SẢN PHẨM -->
+<!-- ====================== HIỂN THỊ SẢN PHẨM ======================== -->
 
 <section class="product-section">
 
@@ -171,10 +163,11 @@ $result = mysqli_query($conn, $sql);
         <?php while ($row = mysqli_fetch_assoc($result)): ?>
 
             <?php
-                $img       = htmlspecialchars($row['image_url'] ?: 'uploads/no-image.jpg');
-                $pname     = htmlspecialchars($row['product_name']);
-                $price     = $row['price'] ? number_format($row['price'], 0, ",", ".") . 'đ' : 'Liên hệ';
-                $variantId = (int)$row['variant_id'];
+                $img          = htmlspecialchars($row['image_url'] ?: 'uploads/no-image.jpg');
+                $pname        = htmlspecialchars($row['product_name']);
+                $price        = $row['price'] ? number_format($row['price'], 0, ",", ".") . 'đ' : 'Liên hệ';
+                $variantId    = (int)$row['variant_id'];
+                $variantCount = (int)$row['variant_count'];
             ?>
 
             <div class="product-card">
@@ -189,14 +182,25 @@ $result = mysqli_query($conn, $sql);
                     <a href="/fashionstore/index.php?page=product_detail&id=<?= $row['product_id'] ?>" 
                        class="btn">Xem chi tiết</a>
 
-                    <form method="post">
-                        <input type="hidden" name="add_cart_product" value="<?= $row['product_id'] ?>">
-                        <input type="hidden" name="variant_id" value="<?= $variantId ?>">
-                        <input type="hidden" name="product_name" value="<?= $pname ?>">
-                        <button type="submit" class="add-to-cart">
+                    <?php if ($variantCount >= 2): ?>
+                        <!-- ⭐ CÓ 2 SIZE TRỞ LÊN → HIỆN POPUP RỒI CHUYỂN TRANG -->
+                        <button type="button" class="add-to-cart"
+                            onclick="alert('Bạn cần chọn size trước khi thêm vào giỏ hàng!'); 
+                                     window.location.href='/fashionstore/index.php?page=product_detail&id=<?= $row['product_id'] ?>'">
                             <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
                         </button>
-                    </form>
+
+                    <?php else: ?>
+                        <!-- ⭐ CHỈ 1 SIZE → THÊM GIỎ BÌNH THƯỜNG -->
+                        <form method="post">
+                            <input type="hidden" name="add_cart_product" value="<?= $row['product_id'] ?>">
+                            <input type="hidden" name="variant_id" value="<?= $variantId ?>">
+                            <input type="hidden" name="product_name" value="<?= $pname ?>">
+                            <button type="submit" class="add-to-cart">
+                                <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
+                            </button>
+                        </form>
+                    <?php endif; ?>
 
                 </div>
 

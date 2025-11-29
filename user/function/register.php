@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
+$layout = 'auth';  
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $full_name = trim($_POST['full_name'] ?? '');
@@ -96,98 +97,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </body>
 </html>
 <?php 
-session_start();
-include_once "config.php";
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $full_name = trim($_POST['full_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirm  = $_POST['confirm_password'] ?? '';
-
-    if ($full_name === '' || $email === '' || $password === '' || $confirm === '') {
-        $error = "Vui lòng nhập đầy đủ thông tin.";
-    }
-    elseif ($password !== $confirm) {
-        $error = "Mật khẩu nhập lại không khớp.";
-    }
-    else {
-        $email_safe = mysqli_real_escape_string($conn, $email);
-        $full_safe  = mysqli_real_escape_string($conn, $full_name);
-
-        $check = mysqli_query($conn, "SELECT user_id FROM users WHERE email = '{$email_safe}' LIMIT 1");
-        if ($check && mysqli_num_rows($check) > 0) {
-            $error = "Email đã tồn tại.";
-        }
-        else {
-            $pass_md5 = md5($password);
-            $role_id = 3;
-            $sql = "INSERT INTO users (role_id, full_name, email, password, created_at)
-                    VALUES ({$role_id}, '{$full_safe}', '{$email_safe}', '{$pass_md5}', NOW())";
-
-            if (mysqli_query($conn, $sql)) {
-                header('Location: /fashionstore/user/function/login.php'); exit;
-            } else {
-                $error = "Có lỗi khi tạo tài khoản.";
-            }
-        }
-    }
-}
-?>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Ký - FashionStore</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/auth.css">
-</head>
-<?php if (!empty($error)) { echo "<div class='error-message' style='margin:12px;padding:10px;border:1px solid #f00;border-radius:8px;'>".htmlspecialchars($error)."</div>"; } ?>
-<body>
-    
-    <div class="auth-container">
-        <div id="successMessage" class="success-message"></div>
-        
-        <div class="auth-box">
-            <h1>Đăng Ký Tài Khoản</h1>
-            <form id="signupForm" action="/fashionstore/index.php?page=register" method="POST">
-                <div class="form-group">
-                    <label for="fullname">Họ và Tên</label>
-                    <input type="text" id="fullname" placeholder="Nhập họ và tên" required name="full_name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="Nhập email" required name="email">
-                </div>
-                
-                <div class="form-group">
-                    <label for="username">Tên đăng nhập</label>
-                    <input type="text" id="username" placeholder="Nhập tên đăng nhập" required name="username">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Mật khẩu</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" placeholder="Nhập mật khẩu" required name="password">
-                        
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="confirmPassword">Xác nhận mật khẩu</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required name="confirm_password">
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn-auth">Đăng Ký</button>
-            </form>
-            
-                <div class="switch-form">
-                Đã có tài khoản? <a href="/fashionstore/index.php?page=login">Đăng nhập ngay</a>
-            </div>
-        </div>
-    </div>
-</body>
-</html>

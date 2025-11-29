@@ -94,12 +94,37 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
 /* DELETE PRODUCT */
 if ($action === 'delete' && $id > 0) {
 
-    mysqli_query($conn, "DELETE FROM productimages WHERE product_id=$id");
-    mysqli_query($conn, "DELETE FROM products WHERE product_id=$id");
+    // 1. Xóa orderdetails (qua variant)
+    mysqli_query($conn, "
+        DELETE od FROM orderdetails od
+        INNER JOIN productvariants pv ON od.variant_id = pv.variant_id
+        WHERE pv.product_id = $id
+    ");
+
+    // 2. Xóa cartitems (qua variant)
+    mysqli_query($conn, "
+        DELETE ci FROM cartitems ci
+        INNER JOIN carts c ON c.cart_id = ci.cart_id
+        INNER JOIN productvariants pv ON ci.variant_id = pv.variant_id
+        WHERE pv.product_id = $id
+    ");
+
+    // 3. Xóa productvariants
+    mysqli_query($conn, "DELETE FROM productvariants WHERE product_id = $id");
+
+    // 4. Xóa feedback của sản phẩm
+    mysqli_query($conn, "DELETE FROM feedbacks WHERE product_id = $id");
+
+    // 5. Xóa ảnh
+    mysqli_query($conn, "DELETE FROM productimages WHERE product_id = $id");
+
+    // 6. Xóa sản phẩm
+    mysqli_query($conn, "DELETE FROM products WHERE product_id = $id");
 
     header("Location: index.php?page=products");
     exit;
 }
+
 
 /*EDIT PRODUCT*/
 $editing = null;
