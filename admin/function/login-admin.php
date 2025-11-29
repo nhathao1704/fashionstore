@@ -180,10 +180,6 @@ $flash = take_flash();
             <button class="btn-submit" type="submit">Đăng nhập</button>
         </form>
 
-        <div class="auth-links">
-            <span>Chưa có tài khoản?</span>
-            <a href="index.php?page=register-admin">Đăng ký Admin</a>
-        </div>
     </div>
 </div>
 
